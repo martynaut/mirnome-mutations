@@ -1,3 +1,4 @@
+import click
 import gzip
 import pandas as pd
 import os
@@ -26,8 +27,8 @@ def each_file_processing(filename, coordinates, dict_with_files):
             else:
                 position = line.split('\t')[:5]
                 if coordinates[(coordinates['chr'] == position[0]) &
-                             (coordinates['start_ref'] < int(position[1])) &
-                             (coordinates['stop_ref'] > int(position[1]))].shape[0] > 0:
+                               (coordinates['start_ref'] < int(position[1])) &
+                               (coordinates['stop_ref'] > int(position[1]))].shape[0] > 0:
 
                     new_record = pd.DataFrame([line.replace('\n',
                                                             '').replace(';',
@@ -84,16 +85,12 @@ def all_files_processing(input_folder, output_folder, coordinates_file):
 
     files.extend(files_temp)
 
-    with open(output_folder + '/do_not_use.txt', 'r') as file_dont:
-        do_not_use = []
-        for line in file_dont.readlines():
-            do_not_use.append(line[:-1])
-        gz_files = []
-        for file in files:
-            if file[-6:] == 'vcf.gz' and file not in do_not_use:
-                gz_files.append(file)
-            else:
-                pass
+    gz_files = []
+    for file in files:
+        if file.endswith('vcf.gz') or file.endswith('vcf'):
+            gz_files.append(file)
+        else:
+            pass
 
     # files summary
     dict_with_files = {}
@@ -131,3 +128,16 @@ def all_files_processing(input_folder, output_folder, coordinates_file):
         results_df.to_csv(output_folder + '/results_{}.csv'.format(file_type),
                           sep=',',
                           index=False)
+
+
+@click.command()
+@click.argument('input_folder')
+@click.argument('output_folder')
+@click.argument('coordinates_file')
+def main(input_folder,  output_folder, coordinates_file,
+         ):
+    all_files_processing(input_folder, output_folder, coordinates_file)
+
+
+if __name__ == "__main__":
+    main()

@@ -10,24 +10,28 @@ from distinct_occure import dist_occur
 @click.argument('coordinates_file')
 @click.argument('localization_file')
 @click.option('--from_step', '-s')
+@click.option('--end_step', '-es')
 def main(input_folder,  output_folder, coordinates_file,
          localization_file,
-         from_step=''):
+         from_step='',
+         end_step=''):
     if not from_step:
         from_step = 0
+    if not end_step:
+        end_step = 3
     from_step = int(from_step)
-    if from_step <= 1:
+    if from_step <= 1 <= end_step:
         click.echo("Step 1: Extract results for mirnaome")
         all_files_processing(input_folder, output_folder, coordinates_file)
     else:
         click.echo("Skipping step 1")
 
-    if from_step <= 2:
+    if from_step <= 2 <= end_step:
         click.echo("Step 2: Merge all algorithms")
         filter_and_combine(output_folder)
     else:
         click.echo("Skipping step 2")
-    if from_step <= 3:
+    if from_step <= 3 <= end_step:
         click.echo("Step 3: Make distinct and occure files")
         dist_occur(output_folder, localization_file, coordinates_file)
     else:

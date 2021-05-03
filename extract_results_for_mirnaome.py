@@ -102,14 +102,6 @@ def all_files_processing(input_folder, output_folder, coordinates_file):
     df_dict_with_files.index.name = 'filename'
     df_dict_with_files.to_csv(output_folder + '/files_summary.csv', sep=',')
 
-    df_dict_with_files_grouped = df_dict_with_files.reset_index().groupby(['indiv_name',
-                                                                           'type_of_file']).agg('nunique')
-    df_dict_with_files_grouped.to_csv(output_folder + '/files_summary_count_per_patient.csv', sep=',')
-
-    df_file_type = df_dict_with_files.reset_index().groupby(['type_of_file'])[['filename']].agg('nunique')
-    df_file_type.columns = ['count_filename']
-    df_file_type.to_csv(output_folder + '/files_count_per_type.csv', sep=',')
-
     counter = 0
     all_files = df_dict_with_files.shape[0]
     for file_type in list(df_dict_with_files['type_of_file'].unique()):

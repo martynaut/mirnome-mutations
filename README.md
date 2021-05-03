@@ -1,12 +1,9 @@
 # miRNome somatic mutations analysis Python scripts
 
-Project containing Python scripts used to analyse somatic mutations in cancer patients 
-using somatic mutation data from TCGA
-
-Python scripts may be reused for other data sources with input data prepared as somatic mutation data 
+Project containing Python scripts used to analyse somatic mutations in miRNA genes.
+Primarily, the scripts were used to analyse mutations in cancer patients using somatic mutation data from TCGA.
+The scripts may be reused for other data sources with input data prepared as somatic mutation data 
 in TCGA (https://cancergenome.nih.gov/). 
-
-Results of all four algorithms available in TCGA database (muse, mutect2, somaticsniper, varscan2) were used.
 
 For conditions to reuse of these scripts please refer to `LICENSE` file.
 
@@ -27,9 +24,10 @@ make
 sudo make install
 ```
 
-### Before runing mirnome analysis input files (localization and confidence scores) need to be prepared
+### Before runing mirnome analysis input files (localization and confidence scores) need to be prepared.
+#### Examplary input files are included in the repository.
 
-Using files :
+The files are prepared based on downloaded files from miRBase and mirgeneDB from chosen release :
 - hairpin.fa (from miRBase)
 - hsa.gff3.txt (from miRBase)
 - confidence.txt (from miRBase)
@@ -50,7 +48,7 @@ To prepare the files run script `prepare_localization_file.py` similar to (you c
     /path/to/aliases.txt \
     /path/to/mirna_chromosome_build.txt \
     /path/to/hsa.gff \
-    /path/to/output/folder
+    /path/to/calculated/input/files/
 
 ### How to use it
 
@@ -84,12 +82,12 @@ Poznan, Poland
 
 ## Citation
 
-**Pan-Cancer analysis of somatic mutations in miRNA genes**
+**Pan-cancer analysis of somatic mutations in miRNA genes**
 
 Martyna Olga Urbanek-Trzeciak, Paulina Galka-Marciniak, Paulina Maria Nawrocka, Ewelina Kowal, Sylwia Szwec, Maciej Giefing,  Piotr Kozlowski
-doi: https://doi.org/10.1101/2020.06.05.136036
+doi: https://doi.org/10.1016/j.ebiom.2020.103051
 
-https://www.biorxiv.org/content/10.1101/2020.06.05.136036v1
+https://www.thelancet.com/journals/ebiom/article/PIIS2352-3964(20)30427-8/fulltext
 
 ## Contact
 

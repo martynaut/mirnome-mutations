@@ -9,7 +9,7 @@ from prepare_vcf_files_helpers import update_dict_with_file, change_format, chan
 pd.options.mode.chained_assignment = None
 
 
-def make_unique_files(input_folder, output_folder):
+def make_unique_files(input_folder, output_folder, copy_input):
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -172,9 +172,13 @@ def make_unique_files(input_folder, output_folder):
 @click.command()
 @click.argument('input_folder')
 @click.argument('output_folder')
-def main(input_folder,  output_folder
+@click.option('--copy_input', '-c')
+def main(input_folder,  output_folder, copy_input=''
          ):
-    make_unique_files(input_folder, output_folder)
+    if not copy_input:
+        copy_input = 0
+    copy_input = int(copy_input)
+    make_unique_files(input_folder, output_folder, copy_input)
 
 
 if __name__ == "__main__":

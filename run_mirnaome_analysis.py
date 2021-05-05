@@ -27,7 +27,7 @@ def main(input_folder,  output_folder, coordinates_file,
         click.echo("Skipping step 1")
 
     if from_step <= 2 <= end_step:
-        click.echo("Step 2: Merge all algorithms")
+        click.echo("Step 2 (optional): Merge all algorithms and filter mutations")
         filter_and_combine(output_folder)
     else:
         click.echo("Skipping step 2")

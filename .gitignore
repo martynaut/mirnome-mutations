@@ -1,5 +1,10 @@
 **.idea
 
+# Working/testing files
+/input_files/input_vcf
+/output_folder
+code_snippets.sh
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

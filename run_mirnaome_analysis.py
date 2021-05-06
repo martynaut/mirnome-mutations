@@ -11,15 +11,28 @@ from distinct_occure import dist_occur
 @click.argument('localization_file')
 @click.option('--from_step', '-s')
 @click.option('--end_step', '-es')
+@click.option('--include_merger', '-m')
+@click.option('--include_filtering', '-f')
 def main(input_folder,  output_folder, coordinates_file,
          localization_file,
          from_step='',
-         end_step=''):
+         end_step='',
+         include_merger='',
+         include_filtering=''):
+
     if not from_step:
         from_step = 0
     if not end_step:
         end_step = 3
+    if not include_merger:
+        include_merger = 0
+    if not include_filtering:
+        include_filtering = 0
     from_step = int(from_step)
+    end_step = int(end_step)
+    include_merger = int(include_merger)
+    include_filtering = int(include_filtering)
+
     if from_step <= 1 <= end_step:
         click.echo("Step 1: Extract results for mirnaome")
         all_files_processing(input_folder, output_folder, coordinates_file)
@@ -28,7 +41,11 @@ def main(input_folder,  output_folder, coordinates_file,
 
     if from_step <= 2 <= end_step:
         click.echo("Step 2 (optional): Merge all algorithms and filter mutations")
-        filter_and_combine(output_folder)
+        if include_merger:
+            click.echo("Merger of algorithms enabled")
+        if include_filtering:
+            click.echo("Filtering of mutations included")
+        filter_and_combine(output_folder, include_merger, include_filtering)
     else:
         click.echo("Skipping step 2")
     if from_step <= 3 <= end_step:

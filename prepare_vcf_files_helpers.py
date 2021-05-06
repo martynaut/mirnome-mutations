@@ -103,39 +103,46 @@ def update_dict_with_file(filename, dict_of_files):
     regex_sample_normal_aliq = r'##SAMPLE=<ID=NORMAL,NAME=[A-Za-z0-9\-]+,ALIQUOT_ID=([A-Za-z0-9\-]+),'
     regex_type_of_file = r'##gdcWorkflow=<ID=somatic_mutation_calling_workflow,Name=([A-Za-z0-9\-]+),'
 
-    with gzip.open(filename) as f:
-        print('checking:')
-        print(filename)
-        for line in f.readlines():
+    if filename.endswith('vcf.gz'):
+        f = gzip.open(filename)
+    else:
+        f = open(filename)
+    print('checking:')
+    print(filename)
+    for line in f.readlines():
+        try:
             line = line.decode('ascii')
-            if line.startswith('##INDIVIDUAL='):
-                name_search = re.search(regex_indiv_name, line)
-                if name_search:
-                    dict_entry['indiv_name'] = name_search.group(1)
-                id_search = re.search(regex_indiv_id, line)
-                if id_search:
-                    dict_entry['indiv_id'] = id_search.group(1)
+        except AttributeError:
+            pass
+        if line.startswith('##INDIVIDUAL='):
+            name_search = re.search(regex_indiv_name, line)
+            if name_search:
+                dict_entry['indiv_name'] = name_search.group(1)
+            id_search = re.search(regex_indiv_id, line)
+            if id_search:
+                dict_entry['indiv_id'] = id_search.group(1)
 
-            elif line.startswith('##SAMPLE=<ID=NORMAL'):
-                sample_normal_name_search = re.search(regex_sample_normal_name, line)
-                if sample_normal_name_search:
-                    dict_entry['sample_id_normal_name'] = sample_normal_name_search.group(1)
-                sample_normal_aliq_search = re.search(regex_sample_normal_aliq, line)
-                if sample_normal_aliq_search:
-                    dict_entry['sample_id_normal_aliQ'] = sample_normal_aliq_search.group(1)
+        elif line.startswith('##SAMPLE=<ID=NORMAL'):
+            sample_normal_name_search = re.search(regex_sample_normal_name, line)
+            if sample_normal_name_search:
+                dict_entry['sample_id_normal_name'] = sample_normal_name_search.group(1)
+            sample_normal_aliq_search = re.search(regex_sample_normal_aliq, line)
+            if sample_normal_aliq_search:
+                dict_entry['sample_id_normal_aliQ'] = sample_normal_aliq_search.group(1)
 
-            elif line.startswith('##SAMPLE=<ID=TUMOR'):
-                sample_tumor_name_search = re.search(regex_sample_tumor_name, line)
-                if sample_tumor_name_search:
-                    dict_entry['sample_id_tumor_name'] = sample_tumor_name_search.group(1)
-                sample_tumor_aliq_search = re.search(regex_sample_tumor_aliq, line)
-                if sample_tumor_aliq_search:
-                    dict_entry['sample_id_tumor_aliQ'] = sample_tumor_aliq_search.group(1)
+        elif line.startswith('##SAMPLE=<ID=TUMOR'):
+            sample_tumor_name_search = re.search(regex_sample_tumor_name, line)
+            if sample_tumor_name_search:
+                dict_entry['sample_id_tumor_name'] = sample_tumor_name_search.group(1)
+            sample_tumor_aliq_search = re.search(regex_sample_tumor_aliq, line)
+            if sample_tumor_aliq_search:
+                dict_entry['sample_id_tumor_aliQ'] = sample_tumor_aliq_search.group(1)
 
-            elif line.startswith('##gdcWorkflow=<ID=somatic_mutation_calling_workflow'):
-                file_type_search = re.search(regex_type_of_file, line)
-                if file_type_search:
-                    dict_entry['type_of_file'] = file_type_search.group(1)
+        elif line.startswith('##gdcWorkflow=<ID=somatic_mutation_calling_workflow'):
+            file_type_search = re.search(regex_type_of_file, line)
+            if file_type_search:
+                dict_entry['type_of_file'] = file_type_search.group(1)
+    f.close()
 
     dict_of_files[filename] = dict_entry
     return dict_of_files

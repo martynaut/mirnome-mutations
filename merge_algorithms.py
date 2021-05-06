@@ -14,62 +14,62 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
     results_files = []
 
     for file in files:
-        if re.match('.*/results_[a-zA-Z0-9]*\.csv$', file):
+        if re.match('.*results_[a-zA-Z0-9]*\.csv$', file):
             results_files.append(file)
 
+    if not include_merger and len(results_files) > 1:
+        click.echo("Multiple algorithms used and merger not set. Closing")
+        return 1
+
+    if not include_filtering:
+        to_merge = results_files
+    else:
+        to_merge = [file.replace('.csv', '_eval.csv') for file in results_files]
+
     if include_filtering:
-
-        post_analyse(output_folder + '/results_muse.csv',
-                     output_folder + '/results_muse_eval.csv')
-
-        post_analyse(output_folder + '/results_mutect2.csv',
-                     output_folder + '/results_mutect2_eval.csv')
-        post_analyse(output_folder + '/results_varscan2.csv',
-                     output_folder + '/results_varscan2_eval.csv')
-        post_analyse(output_folder + '/results_somaticsniper.csv',
-                     output_folder + '/results_somaticsniper_eval.csv')
-
-    if include_merger and include_filtering:
-        pass
+        for file in results_files:
+            post_analyse(file,
+                         file.replace('.csv', '_eval.csv'))
 
     if include_merger:
 
-        df_muse = pd.read_csv(output_folder + '/results_muse_eval.csv')
-        df_mutect2 = pd.read_csv(output_folder + '/results_mutect2_eval.csv')
-        df_varscan2 = pd.read_csv(output_folder + '/results_varscan2_eval.csv')
-        df_ss = pd.read_csv(output_folder + '/results_somaticsniper_eval.csv')
+        results_df = pd.DataFrame()
 
-        df_muse = df_muse[df_muse['eval']]
-        df_mutect2 = df_mutect2[df_mutect2['eval']]
-        df_varscan2 = df_varscan2[df_varscan2['eval']]
-        df_ss = df_ss[df_ss['eval']]
+        for file in to_merge:
+            temp_df = pd.read_csv(file)
+            alg = re.search('results_([a-zA-Z0-9]+)', file)
+            temp_df['alg'] = alg.group(1)
+            results_df = pd.concat([results_df, temp_df])
+    else:
+        results_df = pd.read_csv(results_files[0])
 
-        df_muse['alg'] = 'muse'
-        df_mutect2['alg'] = 'mutect2'
-        df_varscan2['alg'] = 'varscan2'
-        df_ss['alg'] = 'somaticsniper'
+    columns = ['chrom', 'pos', 'id', 'ref', 'alt', 'qual', 'filter', 'info', 'format',
+               'tumor', 'normal', 'indiv_name', 'indiv_id', 'sample_id_tumor_name',
+               'sample_id_tumor_aliQ', 'sample_id_normal_name',
+               'sample_id_normal_aliQ', 'norm_ref_count', 'norm_alt_count',
+               'tumor_ref_count', 'tumor_alt_count', 'BQ_ref_tum', 'BQ_alt_tum',
+               'BQ_ref_norm', 'BQ_alt_norm', 'QSS_ref_tum', 'QSS_alt_tum',
+               'QSS_ref_nor', 'QSS_alt_nor', 'SSC', 'SPV', 'eval', 'alg']
 
-        df = pd.concat([df_muse, df_mutect2, df_varscan2, df_ss])
+    if include_filtering:
+        results_df = results_df[results_df['eval']]
+        results_df = results_df[columns]
+    else:
+        columns.remove('eval')
+        results_df = results_df[columns]
 
-        df = df[['chrom', 'pos', 'id', 'ref', 'alt', 'qual', 'filter', 'info', 'format',
-                 'tumor', 'normal', 'indiv_name', 'indiv_id', 'sample_id_tumor_name',
-                 'sample_id_tumor_aliQ', 'sample_id_normal_name',
-                 'sample_id_normal_aliQ', 'norm_ref_count', 'norm_alt_count',
-                 'tumor_ref_count', 'tumor_alt_count', 'BQ_ref_tum', 'BQ_alt_tum',
-                 'BQ_ref_norm', 'BQ_alt_norm', 'QSS_ref_tum', 'QSS_alt_tum',
-                 'QSS_ref_nor', 'QSS_alt_nor', 'SSC', 'SPV', 'eval', 'alg']]
+    results_df['control:mut/norm'] = results_df['norm_alt_count'].div(results_df['norm_ref_count'])
+    results_df['control:mut/norm'] = results_df['control:mut/norm'].astype(float)
+    results_df['tumor:mut/norm'] = results_df['tumor_alt_count'].div(results_df['tumor_ref_count'])
+    results_df['tumor:mut/norm'] = results_df['tumor:mut/norm'].astype(float)
+    results_df['ratio'] = results_df['tumor:mut/norm'].div(results_df['control:mut/norm'])
 
-        df['control:mut/norm'] = df['norm_alt_count'] / df['norm_ref_count']
-        df['tumor:mut/norm'] = df['tumor_alt_count'] / df['tumor_ref_count']
+    results_df.replace(np.inf, 0, inplace=True)
 
-        df['ratio'] = df['tumor:mut/norm'] / df['control:mut/norm']
-
-        df.replace(np.inf, 0, inplace=True)
-
-        df.to_csv(output_folder + '/all_mutations_filtered.csv',
-                  sep=',',
-                  index=False)
-        return 0
+    results_df.to_csv(output_folder + '/all_mutations_filtered.csv',
+                      sep=',',
+                      index=False)
+    return 0
 
 
 @click.command()

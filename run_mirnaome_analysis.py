@@ -45,7 +45,9 @@ def main(input_folder,  output_folder, coordinates_file,
             click.echo("Merger of algorithms enabled")
         if include_filtering:
             click.echo("Filtering of mutations included")
-        filter_and_combine(output_folder, include_merger, include_filtering)
+        result = filter_and_combine(output_folder, include_merger, include_filtering)
+        if result == 1:
+            return 1
     else:
         click.echo("Skipping step 2")
     if from_step <= 3 <= end_step:

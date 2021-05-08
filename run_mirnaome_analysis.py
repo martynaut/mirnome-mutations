@@ -3,6 +3,7 @@ from extract_results_for_mirnaome import all_files_processing
 from merge_algorithms import filter_and_combine
 from distinct_occure import dist_occur
 from add_mirna_info import add_info
+from mutation_loc_figures import prepare_figure
 
 
 @click.command()
@@ -60,7 +61,12 @@ def main(input_folder,  output_folder, coordinates_file,
         click.echo("Step 4: Make complex, distinct and occure files")
         dist_occur(output_folder)
     else:
-        click.echo("Skipping step 3")
+        click.echo("Skipping step 4")
+    if from_step <= 5 <= end_step:
+        click.echo("Step 5: All mutations visualizations")
+        prepare_figure(output_folder)
+    else:
+        click.echo("Skipping step 5")
 
     click.echo("Analysis finished")
 

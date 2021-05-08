@@ -20,7 +20,7 @@ def dist_occur(output_folder):
                           'pos_nunique', 'pos_count', 'no_of_loc']
     df_complex['complex'] = df_complex['pos_count'].apply(lambda x: 0 if x < 2 else 1)
 
-    df_complex.to_csv(output_folder + '/complex.csv',
+    df_complex.to_csv(output_folder + '/complex_mutations.csv',
                       sep=',',
                       index=False)
 
@@ -49,7 +49,7 @@ def dist_occur(output_folder):
     
     df_by_mutation.columns = [' '.join(col).strip() for col in df_by_mutation.columns.values]
 
-    df_by_mutation.to_csv(output_folder + '/by_distinct_mutation.csv',
+    df_by_mutation.to_csv(output_folder + '/distinct_mutations.csv',
                           sep=',',
                           index=False)
 

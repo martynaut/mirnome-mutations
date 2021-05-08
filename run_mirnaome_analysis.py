@@ -25,7 +25,7 @@ def main(input_folder,  output_folder, coordinates_file,
     if not from_step:
         from_step = 0
     if not end_step:
-        end_step = 3
+        end_step = 5
     if not include_merger:
         include_merger = 0
     if not include_filtering:

@@ -53,11 +53,20 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
                'BQ_ref_norm', 'BQ_alt_norm', 'QSS_ref_tum', 'QSS_alt_tum',
                'QSS_ref_nor', 'QSS_alt_nor', 'SSC', 'SPV', 'eval', 'alg']
 
+    columns_to_drop = ['control:mut/norm', 'tumor:mut/norm', 'ratio', 'eval',
+                       'qual',
+                       'filter', 'info', 'format', 'normal', 'tumor',
+                       'indiv_id', 'sample_id_tumor_name',
+                       'sample_id_tumor_aliq', 'sample_id_normal_name',
+                       'sample_id_normal_aliq'
+                       ]
+
     if include_filtering:
         results_df = results_df[results_df['eval']]
         results_df = results_df[columns]
     else:
         columns.remove('eval')
+        columns_to_drop.remove('eval')
         results_df = results_df[columns]
 
     results_df['control:mut/norm'] = results_df['norm_alt_count'].div(results_df['norm_ref_count'])
@@ -75,13 +84,8 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
     all_mutations_raw = results_df.copy()
 
     all_mutations_raw.columns = all_mutations_raw.columns.str.lower()
-    all_mutations_raw.drop(['control:mut/norm', 'tumor:mut/norm', 'ratio', 'eval',
-                            'qual',
-                            'filter', 'info', 'format', 'normal', 'tumor',
-                            'indiv_id', 'sample_id_tumor_name',
-                            'sample_id_tumor_aliq', 'sample_id_normal_name',
-                            'sample_id_normal_aliq'
-                            ], axis=1, inplace=True)
+
+    all_mutations_raw.drop(columns_to_drop, axis=1, inplace=True)
     if all_mutations_raw.shape[0] == 0:
         print('no mutations found')
         return 1

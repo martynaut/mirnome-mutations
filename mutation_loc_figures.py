@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib
 import click
 matplotlib.use('TkAgg')
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import rc
@@ -10,7 +11,7 @@ from matplotlib import lines
 
 plt.rcParams['svg.fonttype'] = 'none'
 
-image_path = 'input_files\\primirna_background.tiff'
+image_path = 'input_files/primirna_background.tiff'
 
 SMALL_SIZE = 18
 MEDIUM_SIZE = 20
@@ -23,77 +24,6 @@ rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
 rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
 rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
-
-
-def create_figure(output_folder, output_name):
-
-    first_plot = output_folder + 'plots\\plot_miRNA.svg'
-    second_plot = output_folder + 'plots\\plot_5p_balance_miRNA.svg'
-    third_plot = output_folder + 'plots\\plot_3p_balance_miRNA.svg'
-    fourth_plot = output_folder + 'plots\\plot_balanced_miRNA.svg'
-
-    fig = plt.figure(figsize=(21, 29.7))
-
-    ax = fig.add_axes([0, 0.75, 1, 0.24])
-
-    text_rel_pos_x = 0.05
-    text_rel_pos_y = 0.0
-
-    ax.axis('off')
-    im = plt.imread(first_plot)
-    plt.imshow(im)
-    plt.xticks([])
-    plt.yticks([])
-
-    y_min, y_max = ax.get_ylim()
-    x_min, x_max = ax.get_xlim()
-    plt.text(x_max * text_rel_pos_x, y_min * text_rel_pos_y,
-             'all miRNAs', horizontalalignment='center',
-             verticalalignment='center', fontdict={'size': '20'})
-
-    ax1 = fig.add_axes([0, 0.5, 1, 0.24])
-    ax1.axis('off')
-    im = plt.imread(second_plot)
-    plt.imshow(im)
-    plt.xticks([])
-    plt.yticks([])
-
-    y_min, y_max = ax.get_ylim()
-    x_min, x_max = ax.get_xlim()
-    plt.text(x_max * text_rel_pos_x, y_min * text_rel_pos_y,
-             '5p miRNAs', horizontalalignment='center',
-             verticalalignment='center', fontdict={'size': '20'})
-
-    ax2 = fig.add_axes([0, 0.25, 1, 0.24])
-    ax2.axis('off')
-    im = plt.imread(third_plot)
-    plt.imshow(im)
-    plt.xticks([])
-    plt.yticks([])
-
-    y_min, y_max = ax.get_ylim()
-    x_min, x_max = ax.get_xlim()
-    plt.text(x_max * text_rel_pos_x, y_min * text_rel_pos_y,
-             '3p miRNAs', horizontalalignment='center',
-             verticalalignment='center', fontdict={'size': '20'})
-
-    ax3 = fig.add_axes([0, 0, 1, 0.24])
-    ax3.axis('off')
-    im = plt.imread(fourth_plot)
-    plt.imshow(im)
-    plt.xticks([])
-    plt.yticks([])
-
-    y_min, y_max = ax.get_ylim()
-    x_min, x_max = ax.get_xlim()
-    plt.text(x_max * text_rel_pos_x, y_min * text_rel_pos_y,
-             'balanced miRNAs', horizontalalignment='center',
-             verticalalignment='center', fontdict={'size': '20'})
-
-    plt.savefig(output_name, format='svg', dpi=300, transparent=True,
-                bbox_inches='tight')
-
-    plt.close()
 
 
 def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
@@ -191,7 +121,7 @@ def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
             )
         )
     labels = [str(x) for x in range(-25, 0)] + \
-             [str(x) for x in range(1, 23)] + ['+' + str(x) for x in range(1, 6)]
+             [str(x) for x in range(1, 23)] + ['+' + str(x) for x in range(1, 4)]
 
     labels = ['L' if x == '+4' else x for x in labels]
 
@@ -255,7 +185,7 @@ def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
     b = plt.axes([.025, .02, .82, .35], facecolor='w')
     hue_order = ['flanking-3', 'pre-seed', 'seed', 'post-seed', 'loop']
     labels = ['+' + str(x) for x in range(1, 26)][::-1] + [str(x) for x in range(1, 23)][::-1] + \
-             ['-' + str(x) for x in range(1, 6)]
+             ['-' + str(x) for x in range(1, 4)]
 
     if mirna_type == '5p':
         hue_order = ['flanking-3', 'silent-pre', 'silent-seed', 'silent-post', 'loop']
@@ -498,13 +428,16 @@ def prepare_data_3p(df_temp):
 
 def prepare_figure(output_folder):
 
-    df_temp = pd.read_csv(output_folder + 'all_mutations_with_localization.csv')
+    if not os.path.exists(output_folder + '/plots'):
+        os.makedirs(output_folder + '/plots')
+
+    df_temp = pd.read_csv(output_folder + '/all_mutations_with_localization.csv')
     # df_temp = df_temp[df_temp['mutation_type'] == 'subst']
 
     mutations = df_temp.shape[0]
     genes = df_temp['pre_name'].nunique()
 
-    create_plot(df_temp, output_folder + 'plots\\plot_miRNA.svg',
+    create_plot(df_temp, output_folder + '/plots/plot_miRNA.svg',
                 mutations, genes, mirna_type='both')
 
     # 5' dominant miRNAs
@@ -514,7 +447,7 @@ def prepare_figure(output_folder):
     mutations = df_5_dominant.shape[0]
     genes = df_5_dominant['pre_name'].nunique()
 
-    create_plot(df_5_dominant, output_folder + 'plots\\plot_5p_balance_miRNA.svg',
+    create_plot(df_5_dominant, output_folder + '/plots/plot_5p_balance_miRNA.svg',
                 mutations, genes, mirna_type='5p')
 
     # 3p dominant miRNAs
@@ -524,7 +457,7 @@ def prepare_figure(output_folder):
     mutations = df_3_dominant.shape[0]
     genes = df_3_dominant['pre_name'].nunique()
 
-    create_plot(df_3_dominant, output_folder + 'plots\\plot_3p_balance_miRNA.svg',
+    create_plot(df_3_dominant, output_folder + '/plots/plot_3p_balance_miRNA.svg',
                 mutations, genes, mirna_type='3p')
 
     # balanced miRNAs
@@ -534,10 +467,8 @@ def prepare_figure(output_folder):
     mutations = df_no_dominant.shape[0]
     genes = df_no_dominant['pre_name'].nunique()
 
-    create_plot(df_no_dominant, output_folder + 'plots\\plot_balanced_miRNA.svg',
+    create_plot(df_no_dominant, output_folder + '/plots/plot_balanced_miRNA.svg',
                 mutations, genes, mirna_type='both')
-
-    create_figure(output_folder, output_folder+'plots\\Figure_1.svg')
 
 
 @click.command()

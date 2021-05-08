@@ -4,6 +4,8 @@ import os
 import re
 import numpy as np
 from post_extraction_analysis import post_analyse
+from distinct_occure_helpers import type_of_mutation, concat_alg, \
+    subst_type
 
 
 def filter_and_combine(output_folder, include_merger, include_filtering):
@@ -66,9 +68,41 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
 
     results_df.replace(np.inf, 0, inplace=True)
 
-    results_df.to_csv(output_folder + '/all_mutations_filtered.csv',
+    results_df.to_csv(output_folder + '/all_mutations.csv',
                       sep=',',
                       index=False)
+
+    all_mutations_raw = results_df.copy()
+
+    all_mutations_raw.columns = all_mutations_raw.columns.str.lower()
+    all_mutations_raw.drop(['control:mut/norm', 'tumor:mut/norm', 'ratio', 'eval',
+                            'qual',
+                            'filter', 'info', 'format', 'normal', 'tumor',
+                            'indiv_id', 'sample_id_tumor_name',
+                            'sample_id_tumor_aliq', 'sample_id_normal_name',
+                            'sample_id_normal_aliq'
+                            ], axis=1, inplace=True)
+    if all_mutations_raw.shape[0] == 0:
+        print('no mutations found')
+        return 1
+    all_mutations_raw['mutation_type'] = all_mutations_raw.apply(lambda x: type_of_mutation(x), axis=1)
+
+    all_mutations_raw.fillna(-1, inplace=True)
+
+    all_mutations = all_mutations_raw.groupby(['chrom', 'pos',
+                                               'indiv_name', 'ref', 'alt',
+                                               'mutation_type']).agg({'alg': concat_alg,
+                                                                      'norm_ref_count': sum,
+                                                                      'norm_alt_count': sum,
+                                                                      'tumor_ref_count': sum,
+                                                                      'tumor_alt_count': sum
+                                                                      }).reset_index()
+    all_mutations['type_of_subst'] = all_mutations.apply(lambda x: subst_type(x), axis=1)
+
+    all_mutations.to_csv(output_folder + '/all_mutations_algorithms_merged.csv',
+                         sep=',',
+                         index=False)
+
     return 0
 
 

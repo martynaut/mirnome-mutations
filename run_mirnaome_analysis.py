@@ -2,6 +2,7 @@ import click
 from extract_results_for_mirnaome import all_files_processing
 from merge_algorithms import filter_and_combine
 from distinct_occure import dist_occur
+from add_mirna_info import add_info
 
 
 @click.command()
@@ -51,8 +52,13 @@ def main(input_folder,  output_folder, coordinates_file,
     else:
         click.echo("Skipping step 2")
     if from_step <= 3 <= end_step:
-        click.echo("Step 3: Make distinct and occure files")
-        dist_occur(output_folder, localization_file, coordinates_file)
+        click.echo("Step 3: Add miRNA information")
+        add_info(output_folder, localization_file)
+    else:
+        click.echo("Skipping step 3")
+    if from_step <= 4 <= end_step:
+        click.echo("Step 4: Make complex, distinct and occure files")
+        dist_occur(output_folder)
     else:
         click.echo("Skipping step 3")
 

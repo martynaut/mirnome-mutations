@@ -102,6 +102,7 @@ def update_dict_with_file(filename, dict_of_files):
     regex_sample_normal_name = r'##SAMPLE=<ID=NORMAL,NAME=([A-Za-z0-9\-]+),'
     regex_sample_normal_aliq = r'##SAMPLE=<ID=NORMAL,NAME=[A-Za-z0-9\-]+,ALIQUOT_ID=([A-Za-z0-9\-]+),'
     regex_type_of_file = r'##gdcWorkflow=<ID=somatic_mutation_calling_workflow,Name=([A-Za-z0-9\-]+),'
+    regex_source = r'##source=([A-Za-z0-9\-]+)'
 
     if filename.endswith('vcf.gz'):
         f = gzip.open(filename)
@@ -142,6 +143,10 @@ def update_dict_with_file(filename, dict_of_files):
             file_type_search = re.search(regex_type_of_file, line)
             if file_type_search:
                 dict_entry['type_of_file'] = file_type_search.group(1)
+        elif line.startswith('##source='):
+            source_search = re.search(regex_source, line)
+            if source_search:
+                dict_entry['type_of_file'] = source_search.group(1)
     f.close()
 
     dict_of_files[filename] = dict_entry

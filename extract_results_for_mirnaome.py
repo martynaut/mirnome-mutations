@@ -22,13 +22,18 @@ def each_file_processing(filename, coordinates, dict_with_files):
         f = open(filename)
 
     columns = []
+    tumor_name = 'tumor'
+    normal_name = 'normal'
     for line in f.readlines():
         try:
             line = line.decode('ascii')
         except AttributeError:
             pass
-        if line[:1] == '##':
-            pass
+        if line[:2] == '##':
+            if line.startswith('##tumor_sample='):
+                tumor_name = line.replace("##tumor_sample=", '').strip().lower()
+            elif line.startswith("##normal_sample="):
+                normal_name = line.replace("##normal_sample=", '').strip().lower()
         elif line[:1] == '#':
             columns = line.replace('#', '').strip().lower().split('\t')
         else:
@@ -59,7 +64,7 @@ def each_file_processing(filename, coordinates, dict_with_files):
                     new_record['QSS_ref_nor'],
                     new_record['QSS_alt_nor'],
                     new_record['SSC']) = retract_counts(
-                        new_record['normal'], new_record['tumor'], new_record['format'],
+                        new_record[normal_name], new_record[tumor_name], new_record['format'],
                         new_record['ref'], new_record['alt'])
 
                 if np.isnan(float(new_record['SSC'].values[0])):

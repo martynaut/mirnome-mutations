@@ -251,7 +251,7 @@ def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
 
     plt.setp(ax.patches, linewidth=0)
 
-    plt.savefig(output_name, format='svg', dpi=300, transparent=True, compression="lzw", bbox_inches='tight')
+    plt.savefig(output_name, format='svg', dpi=300, transparent=True, bbox_inches='tight')
     plt.close()
 
 

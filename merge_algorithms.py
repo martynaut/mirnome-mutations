@@ -44,6 +44,8 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
             results_df = pd.concat([results_df, temp_df])
     else:
         results_df = pd.read_csv(results_files[0])
+        alg = re.search('results_([a-zA-Z0-9]+)', results_files[0])
+        results_df['alg'] = alg.group(1)
 
     columns = ['chrom', 'pos', 'id', 'ref', 'alt', 'qual', 'filter', 'info', 'format',
                'tumor', 'normal', 'indiv_name', 'indiv_id', 'sample_id_tumor_name',
@@ -63,11 +65,11 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
 
     if include_filtering:
         results_df = results_df[results_df['eval']]
-        results_df = results_df[columns]
     else:
         columns.remove('eval')
         columns_to_drop.remove('eval')
-        results_df = results_df[columns]
+
+    results_df = results_df[columns]
 
     results_df['control:mut/norm'] = results_df['norm_alt_count'].div(results_df['norm_ref_count'])
     results_df['control:mut/norm'] = results_df['control:mut/norm'].astype(float)

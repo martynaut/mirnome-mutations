@@ -4,8 +4,7 @@ import os
 import re
 import numpy as np
 from post_extraction_analysis import post_analyse
-from distinct_occure_helpers import type_of_mutation, concat_alg, \
-    subst_type
+from distinct_occure_helpers import concat_alg
 
 
 def filter_and_combine(output_folder, include_merger, include_filtering):
@@ -27,14 +26,11 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
         to_merge = results_files
     else:
         to_merge = [file.replace('.csv', '_eval.csv') for file in results_files]
-
-    if include_filtering:
         for file in results_files:
             post_analyse(file,
                          file.replace('.csv', '_eval.csv'))
 
     if include_merger:
-
         results_df = pd.DataFrame()
 
         for file in to_merge:
@@ -42,72 +38,35 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
             alg = re.search('results_([a-zA-Z0-9]+)', file)
             temp_df['alg'] = alg.group(1)
             results_df = pd.concat([results_df, temp_df])
+
+            results_df = results_df.groupby(['chrom', 'pos',
+                                             'indiv_name', 'ref', 'alt']).agg({'alg': concat_alg,
+                                                                               'norm_ref_count': sum,
+                                                                               'norm_alt_count': sum,
+                                                                               'tumor_ref_count': sum,
+                                                                               'tumor_alt_count': sum
+                                                                               }).reset_index()
+
     else:
         results_df = pd.read_csv(results_files[0])
         alg = re.search('results_([a-zA-Z0-9]+)', results_files[0])
         results_df['alg'] = alg.group(1)
 
-    columns = ['chrom', 'pos', 'id', 'ref', 'alt', 'qual', 'filter', 'info', 'format',
-               'tumor', 'normal', 'indiv_name', 'indiv_id', 'sample_id_tumor_name',
-               'sample_id_tumor_aliQ', 'sample_id_normal_name',
-               'sample_id_normal_aliQ', 'norm_ref_count', 'norm_alt_count',
-               'tumor_ref_count', 'tumor_alt_count', 'BQ_ref_tum', 'BQ_alt_tum',
-               'BQ_ref_norm', 'BQ_alt_norm', 'QSS_ref_tum', 'QSS_alt_tum',
-               'QSS_ref_nor', 'QSS_alt_nor', 'SSC', 'SPV', 'eval', 'alg']
-
-    columns_to_drop = ['control:mut/norm', 'tumor:mut/norm', 'ratio', 'eval',
-                       'qual',
-                       'filter', 'info', 'format', 'normal', 'tumor',
-                       'indiv_id', 'sample_id_tumor_name',
-                       'sample_id_tumor_aliq', 'sample_id_normal_name',
-                       'sample_id_normal_aliq'
-                       ]
+    columns = ['chrom', 'pos', 'ref', 'alt', 'indiv_name', 'norm_ref_count', 'norm_alt_count',
+               'tumor_ref_count', 'tumor_alt_count', 'alg']
 
     if include_filtering:
         results_df = results_df[results_df['eval']]
-    else:
-        columns.remove('eval')
-        columns_to_drop.remove('eval')
+
+    if results_df.shape[0] == 0:
+        print('no mutations found')
+        return 1
 
     results_df = results_df[columns]
-
-    results_df['control:mut/norm'] = results_df['norm_alt_count'].div(results_df['norm_ref_count'])
-    results_df['control:mut/norm'] = results_df['control:mut/norm'].astype(float)
-    results_df['tumor:mut/norm'] = results_df['tumor_alt_count'].div(results_df['tumor_ref_count'])
-    results_df['tumor:mut/norm'] = results_df['tumor:mut/norm'].astype(float)
-    results_df['ratio'] = results_df['tumor:mut/norm'].div(results_df['control:mut/norm'])
-
     results_df.replace(np.inf, 0, inplace=True)
-
     results_df.to_csv(output_folder + '/all_mutations.csv',
                       sep=',',
                       index=False)
-
-    all_mutations_raw = results_df.copy()
-
-    all_mutations_raw.columns = all_mutations_raw.columns.str.lower()
-
-    all_mutations_raw.drop(columns_to_drop, axis=1, inplace=True)
-    if all_mutations_raw.shape[0] == 0:
-        print('no mutations found')
-        return 1
-    all_mutations_raw['mutation_type'] = all_mutations_raw.apply(lambda x: type_of_mutation(x), axis=1)
-
-    all_mutations_raw.fillna(-1, inplace=True)
-
-    all_mutations = all_mutations_raw.groupby(['chrom', 'pos',
-                                               'indiv_name', 'ref', 'alt',
-                                               'mutation_type']).agg({'alg': concat_alg,
-                                                                      'norm_ref_count': sum,
-                                                                      'norm_alt_count': sum,
-                                                                      'tumor_ref_count': sum,
-                                                                      'tumor_alt_count': sum
-                                                                      }).reset_index()
-    all_mutations['type_of_subst'] = all_mutations.apply(lambda x: subst_type(x), axis=1)
-
-    all_mutations.to_csv(output_folder + '/all_mutations_algorithms_merged.csv',
-                         sep=',',
-                         index=False)
 
     return 0
 

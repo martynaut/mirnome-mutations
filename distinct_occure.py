@@ -37,15 +37,24 @@ def dist_occur(output_folder):
                       sep=',',
                       index=False)
 
-    df_by_mutation = all_mutations.groupby(['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'pos', 'ref', 'alt',
-                                            'mutation_type', 'type_of_subst']).agg(
-        {'indiv_name': 'nunique',
-         'norm_ref_count': [sum, concat_ints],
-         'norm_alt_count': [sum, concat_ints],
-         'tumor_ref_count': [sum, concat_ints],
-         'tumor_alt_count': [sum, concat_ints],
-         'no_of_loc': concat_ints
-         }).reset_index()
+    if 'norm_ref_count' in all_mutations.columns:
+
+        df_by_mutation = all_mutations.groupby(['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'pos', 'ref', 'alt',
+                                                'mutation_type', 'type_of_subst']).agg(
+            {'indiv_name': 'nunique',
+             'norm_ref_count': [sum, concat_ints],
+             'norm_alt_count': [sum, concat_ints],
+             'tumor_ref_count': [sum, concat_ints],
+             'tumor_alt_count': [sum, concat_ints],
+             'no_of_loc': concat_ints
+             }).reset_index()
+
+    else:
+        df_by_mutation = all_mutations.groupby(['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'pos', 'ref', 'alt',
+                                                'mutation_type', 'type_of_subst']).agg(
+            {'indiv_name': 'nunique',
+             'no_of_loc': concat_ints
+             }).reset_index()
     
     df_by_mutation.columns = [' '.join(col).strip() for col in df_by_mutation.columns.values]
 

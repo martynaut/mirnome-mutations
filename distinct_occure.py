@@ -13,11 +13,10 @@ def dist_occur(output_folder):
     all_mutations = pd.read_csv(output_folder + '/all_mutations_with_localization.csv')
 
     df_complex = all_mutations.groupby(['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'indiv_name']).agg({
-        'pos': ['nunique', 'count'],
-        'no_of_loc': concat_ints
+        'pos': ['nunique', 'count']
     }).reset_index()
     df_complex.columns = ['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'indiv_name',
-                          'pos_nunique', 'pos_count', 'no_of_loc']
+                          'pos_nunique', 'pos_count']
     df_complex['complex'] = df_complex['pos_count'].apply(lambda x: 0 if x < 2 else 1)
 
     df_complex.to_csv(output_folder + '/complex_mutations.csv',
@@ -27,11 +26,10 @@ def dist_occur(output_folder):
     df_by_gene = all_mutations.groupby(['chrom', 'pre_name', 'id', 'start_pre', 'seq_type']).agg(
         {'indiv_name': ['nunique',
                         'count'],
-         'pos': 'nunique',
-         'no_of_loc': concat_ints
+         'pos': 'nunique'
          }).reset_index()
     df_by_gene.columns = ['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'indiv_name_nunique',
-                          'indiv_name_count', 'pos_nunique', 'no_of_loc']
+                          'indiv_name_count', 'pos_nunique']
     df_by_gene['if_complex'] = df_by_gene.apply(lambda x: if_complex(x, df_complex), axis=1)
     df_by_gene.to_csv(output_folder + '/occur.csv',
                       sep=',',

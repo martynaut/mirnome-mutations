@@ -13,13 +13,24 @@ def make_unique_files(input_folder, output_folder, copy_input):
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
+    else:
+        click.echo("Cleaning output folder")
+        for filename in os.listdir(output_folder):
+            file_path = os.path.join(output_folder, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete {}. Reason: {}'.format(file_path, e))
 
     if not os.path.exists(output_folder + '/temp'):
         os.makedirs(output_folder + '/temp')
 
     files = [[x[0] + '/' + y for y in x[2]] for x in os.walk(input_folder)]
     flat_files = [file for sublist in files for file in sublist]
-    gz_files = [file for file in flat_files if file.endswith('vep.vcf.gz')]
+    gz_files = [file for file in flat_files if file.endswith('vcf.gz')]
 
     dict_with_files = {}
     for gz_file in gz_files:
@@ -166,8 +177,23 @@ def make_unique_files(input_folder, output_folder, copy_input):
                     for index, row in lines_df_grouped.iterrows():
                         combined.write('\t'.join(row.tolist()).encode('utf-8')+b'\n')
                 with open(output_folder + '/temp/' + patient+'_'+file_type+'.vcf', 'rb') as combined, \
-                        gzip.open(output_folder + '/temp/' + patient+'_'+file_type+'.vcf.gz', 'wb') as f_out:
+                        gzip.open(output_folder + '/' + patient+'_'+file_type+'.vcf.gz', 'wb') as f_out:
                     shutil.copyfileobj(combined, f_out)
+    with open(output_folder + '/do_not_use.txt', 'r') as file_dont:
+        do_not_use = []
+        for line in file_dont.readlines():
+            do_not_use.append(line.strip())
+        gz_files_single = []
+        for file in gz_files:
+            if file[-6:] == 'vcf.gz' and file not in do_not_use:
+                gz_files_single.append(file)
+
+    for file in gz_files_single:
+        if copy_input == 1:
+            shutil.copyfile(file, output_folder + '/' + file.split('/')[-1])
+        else:
+            shutil.move(file, output_folder + '/' + file.split('/')[-1])
+
 
 @click.command()
 @click.argument('input_folder')

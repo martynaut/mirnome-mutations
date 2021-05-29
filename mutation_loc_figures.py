@@ -431,7 +431,7 @@ def prepare_figure(output_folder):
     if not os.path.exists(output_folder + '/plots'):
         os.makedirs(output_folder + '/plots')
 
-    df_temp = pd.read_csv(output_folder + '/all_mutations_with_localization.csv')
+    df_temp = pd.read_csv(output_folder + '/all_mutations_with_weights.csv')
     # df_temp = df_temp[df_temp['mutation_type'] == 'subst']
 
     mutations = df_temp.shape[0]

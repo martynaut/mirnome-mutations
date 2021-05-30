@@ -4,7 +4,7 @@ from add_weights_helpers import rev_comp, change_in_motifs, iupac_dict, motifs, 
     motif_check
 
 
-def add_mutation_weights(input_folder, output_folder):
+def add_mutation_weights(coordinates_with_seq, output_folder):
 
     df_all_mut = pd.read_csv(
         output_folder + '/all_mutations_with_localization.csv'
@@ -33,7 +33,7 @@ def add_mutation_weights(input_folder, output_folder):
     )
 
     df_coordinates = pd.read_csv(
-        input_folder + 'coordinates_with_seq.bed',
+        coordinates_with_seq,
         sep='\t',
         header=None
     )
@@ -44,8 +44,6 @@ def add_mutation_weights(input_folder, output_folder):
 
     df_all_mut = df_all_mut[(df_all_mut['pos'] >= df_all_mut[1])
                             & (df_all_mut['pos'] <= df_all_mut[2])]
-
-    print(df_all_mut.shape)
 
     df_all_mut['whole_seq'] = df_all_mut[4].str.upper()
 
@@ -62,7 +60,6 @@ def add_mutation_weights(input_folder, output_folder):
         df_all_mut['motifs_{}'.format(key)] = df_all_mut.apply(lambda x: motif_check(x, motif, key), axis=1)
 
     motifs_cols = [col for col in df_all_mut.columns if 'motifs_' in str(col)]
-    print(motifs_cols)
 
     df_all_mut.head()
 
@@ -79,20 +76,18 @@ def add_mutation_weights(input_folder, output_folder):
         axis=1
     )
 
-    print(df_all_mut.head())
-
     df_all_mut.to_csv(
         output_folder + '/all_mutations_with_weights.csv'
     )
 
 
 @click.command()
-@click.argument('input_folder')
+@click.argument('coordinates_with_seq')
 @click.argument('output_folder')
-def main(input_folder,
+def main(coordinates_with_seq,
          output_folder
          ):
-    add_mutation_weights(input_folder, output_folder)
+    add_mutation_weights(coordinates_with_seq, output_folder)
 
 
 if __name__ == "__main__":

@@ -12,12 +12,13 @@ from add_weights import add_mutation_weights
 @click.argument('output_folder')
 @click.argument('coordinates_file')
 @click.argument('localization_file')
+@click.argument('coordinates_with_seq')
 @click.option('--from_step', '-s')
 @click.option('--end_step', '-es')
 @click.option('--include_merger', '-m')
 @click.option('--include_filtering', '-f')
 def main(input_folder,  output_folder, coordinates_file,
-         localization_file,
+         localization_file, coordinates_with_seq,
          from_step='',
          end_step='',
          include_merger='',
@@ -60,7 +61,7 @@ def main(input_folder,  output_folder, coordinates_file,
         click.echo("Skipping step 3")
     if from_step <= 4 <= end_step:
         click.echo("Step 4: Add mutation weights")
-        add_mutation_weights(input_folder, output_folder)
+        add_mutation_weights(coordinates_with_seq, output_folder)
     else:
         click.echo("Skipping step 3")
     if from_step <= 5 <= end_step:

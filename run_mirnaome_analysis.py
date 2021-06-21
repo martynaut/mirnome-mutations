@@ -3,7 +3,7 @@ from extract_results_for_mirnaome import all_files_processing
 from merge_algorithms import filter_and_combine
 from distinct_occure import dist_occur
 from add_mirna_info import add_info
-from mutation_loc_figures import prepare_figure
+from mutation_loc_figures import prepare_figure, prepare_figures_per_mirna
 from add_weights import add_mutation_weights
 
 
@@ -27,7 +27,7 @@ def main(input_folder,  output_folder, coordinates_file,
     if not from_step:
         from_step = 0
     if not end_step:
-        end_step = 5
+        end_step = 6
     if not include_merger:
         include_merger = 0
     if not include_filtering:
@@ -72,6 +72,7 @@ def main(input_folder,  output_folder, coordinates_file,
     if from_step <= 6 <= end_step:
         click.echo("Step 6: All mutations visualizations")
         prepare_figure(output_folder)
+        prepare_figures_per_mirna(output_folder)
     else:
         click.echo("Skipping step 5")
 

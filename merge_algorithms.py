@@ -37,6 +37,8 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
             temp_df = pd.read_csv(file)
             alg = re.search('results_([a-zA-Z0-9]+)', file)
             temp_df['alg'] = alg.group(1)
+            if include_filtering:
+                temp_df = temp_df[temp_df['eval']]
             results_df = pd.concat([results_df, temp_df])
 
             results_df = results_df.groupby(['chrom', 'pos',
@@ -48,15 +50,12 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
                                                                                }).reset_index()
 
     else:
-        results_df = pd.read_csv(results_files[0])
-        alg = re.search('results_([a-zA-Z0-9]+)', results_files[0])
+        results_df = pd.read_csv(to_merge[0])
+        alg = re.search('results_([a-zA-Z0-9]+)', to_merge[0])
         results_df['alg'] = alg.group(1)
 
     columns = ['chrom', 'pos', 'ref', 'alt', 'indiv_name', 'norm_ref_count', 'norm_alt_count',
                'tumor_ref_count', 'tumor_alt_count', 'alg']
-
-    if include_filtering:
-        results_df = results_df[results_df['eval']]
 
     if results_df.shape[0] == 0:
         print('no mutations found')

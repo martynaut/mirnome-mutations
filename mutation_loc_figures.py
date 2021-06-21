@@ -471,10 +471,270 @@ def prepare_figure(output_folder):
                 mutations, genes, mirna_type='both')
 
 
+def create_plot_per_mirna(data_df, output_name, mutations=0, types='both', title1='title1', title='title'):
+    df_plot_5, loop_value = prepare_data_5p(data_df)
+
+    df_plot_3 = prepare_data_3p(data_df)
+
+    max_value = max(df_plot_5['pos'].max(), df_plot_3['pos'].max())
+
+    rc("pdf", fonttype=42)
+    sns.set_style(style='white')
+
+    palette = {'flanking-5': 'grey',
+               'flanking-3': 'grey',
+               'pre-seed': '#5481A6',
+               'seed': 'darkblue',
+               'post-seed': '#5481A6',
+               'loop': 'grey',
+               'silent-pre': '#5481A6',
+               'silent-post': '#5481A6',
+               'silent-seed': '#5481A6'
+               }
+
+    fig = plt.figure(figsize=(25, 10))
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    ax.axis('off')
+    im = plt.imread(image_path)
+    plt.imshow(im)
+    plt.xticks([])
+    plt.yticks([])
+
+    y_min, y_max = ax.get_ylim()
+    x_min, x_max = ax.get_xlim()
+
+    plt.text(0, y_min * -0.5, title1.replace('mir', 'miR'), horizontalalignment='left', weight='bold',
+             verticalalignment='center', fontdict={'size': '38'})
+
+    plt.text(0, y_min * -0.35, title, horizontalalignment='left',
+             verticalalignment='center', fontdict={'size': '38'})
+
+    plt.text(x_max * 0.92, y_min * 1, str(mutations), horizontalalignment='center',
+             verticalalignment='center', fontdict={'size': '42'})
+
+    plt.text(x_max * 0.24, y_min * -0.09, 'flanking region', horizontalalignment='center', fontdict={'size': '42'})
+    line = lines.Line2D([x_max * 0.02, x_max * 0.46], [y_min * -0.07, y_min * -0.07], lw=0.5, color='grey',
+                        alpha=0.8)
+    ax.add_line(line)
+    line.set_clip_on(False)
+
+    plt.text(x_max * 0.65, y_min * -0.09, 'miRNA', horizontalalignment='center', fontdict={'size': '42'})
+    line = lines.Line2D([x_max * 0.47, x_max * 0.83], [y_min * -0.07, y_min * -0.07], lw=0.5, color='#5481A6',
+                        alpha=0.8)
+    ax.add_line(line)
+    line.set_clip_on(False)
+
+    plt.text(x_max * 0.91, y_min * -0.09, 'loop', horizontalalignment='center', fontdict={'size': '42'})
+    line = lines.Line2D([x_max * 0.84, x_max * 0.98], [y_min * -0.07, y_min * -0.07], lw=0.5, color='grey',
+                        alpha=0.8)
+    ax.add_line(line)
+    line.set_clip_on(False)
+
+    if types != '3p':
+        plt.text(x_max * 0.54, y_min * 0, 'seed', horizontalalignment='center', fontdict={'size': '42'})
+        line = lines.Line2D([x_max * 0.49, x_max * 0.59], [y_min * 0.03, y_min * 0.03], lw=0.5, color='darkblue',
+                            alpha=0.8)
+        ax.add_line(line)
+        line.set_clip_on(False)
+
+    if types != '5p':
+        line = lines.Line2D([x_max * 0.675, x_max * 0.775], [y_min * 1.125, y_min * 1.125], lw=0.5,
+                            color='darkblue',
+                            alpha=0.8)
+        ax.add_line(line)
+        line.set_clip_on(False)
+        plt.text(x_max * 0.725, y_min * 1.195, 'seed', horizontalalignment='center', fontdict={'size': '42'})
+
+    if loop_value > 0:
+        plt.text(
+            x_max * 0.92, y_min * 0.6, '+ {} loop\nmutations'.format(loop_value),
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontdict={'size': '30'}
+        )
+
+    a = plt.axes([.058, .52, .82, .35])
+
+    hue_order = ['flanking-5', 'pre-seed', 'seed', 'post-seed', 'loop']
+
+    if types == '3p':
+        hue_order = ['flanking-5', 'silent-pre', 'silent-seed', 'silent-post', 'loop']
+
+        df_plot_5['type'] = df_plot_5['type'].apply(
+            lambda x: 'silent-seed' if x == 'seed' else (
+                'silent-pre' if x == 'pre-seed' else (
+                    'silent-post' if x == 'post-seed' else x
+                )
+            )
+        )
+    labels = [str(x) for x in range(-25, 0)] + \
+             [str(x) for x in range(1, 23)] + ['+' + str(x) for x in range(1, 4)]
+
+    labels = ['L' if x == '+4' else x for x in labels]
+
+    ax = sns.barplot(x="from_start", y="pos", hue="type",
+                     data=df_plot_5, dodge=False,
+                     hue_order=hue_order,
+                     palette=palette,
+                     ax=a)
+
+    for loc in ['right', 'top', 'left', 'bottom']:
+        ax.spines[loc].set_visible(False)
+
+    ax.set_xlabel('')
+    ax.set_ylabel('')
+    ax.legend(loc='upper right', ncol=2)
+
+    plt.setp(ax.get_legend().get_texts(), fontsize='18')
+    plt.setp(ax.get_legend().get_title(), fontsize='22')
+    plt.grid(b=True, which='major', axis='y', color='lightgrey',
+             linestyle='-', linewidth=0.75, zorder=2, alpha=0.5)
+
+    ax.set_xticklabels(labels)
+
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label.set_fontsize(30)
+
+    for tick in ax.yaxis.get_major_ticks():
+        tick.label.set_fontsize(30)
+
+    if max_value > 5:
+        plt.yticks(np.arange(0, max_value + 1, np.floor(max_value / 3)))
+        plot_limit = max_value + 2
+    else:
+        plt.yticks(np.arange(0, max_value + 1, 1))
+        plot_limit = max_value + 1
+
+    ax.set_ylim([0, plot_limit])
+    ax.xaxis.tick_bottom()
+    for label in ax.get_xticklabels():
+        if label.get_text() not in ['-25', '-20', '-15', '-10', '-5', '1', '5', '10', '15', '20',
+                                    '+1']:
+            label.set_visible(False)
+
+    new_width = 0.35
+    for patch in ax.patches:
+        current_width = patch.get_width()
+        diff = current_width - new_width
+
+        # we change the bar width
+        patch.set_width(new_width)
+
+        # we recenter the bar
+        patch.set_x(patch.get_x() + diff * .5)
+
+    ax.tick_params(axis='both', which='major', pad=8, width=0.5)
+
+    plt.setp(ax.patches, linewidth=0)
+
+    ax.get_legend().remove()
+
+    b = plt.axes([.025, .02, .82, .35], facecolor='w')
+    hue_order = ['flanking-3', 'pre-seed', 'seed', 'post-seed', 'loop']
+    labels = ['+' + str(x) for x in range(1, 26)][::-1] + [str(x) for x in range(1, 23)][::-1] + \
+             ['-' + str(x) for x in range(1, 4)]
+
+    if types == '5p':
+        hue_order = ['flanking-3', 'silent-pre', 'silent-seed', 'silent-post', 'loop']
+
+        df_plot_3['type'] = df_plot_3['type'].apply(
+            lambda x: 'silent-seed' if x == 'seed' else (
+                'silent-pre' if x == 'pre-seed' else (
+                    'silent-post' if x == 'post-seed' else x
+                )
+            )
+        )
+
+    ax = sns.barplot(x="from_start", y="pos", hue="type",
+                     data=df_plot_3, dodge=False,
+                     hue_order=hue_order,
+                     palette=palette,
+                     ax=b)
+
+    for loc in ['right', 'top', 'left', 'bottom']:
+        ax.spines[loc].set_visible(False)
+
+    ax.set_xlabel('')
+    ax.set_ylabel('')
+
+    plt.grid(b=True, which='major', axis='y', color='lightgrey',
+             linestyle='-', linewidth=0.75, zorder=1, alpha=0.5)
+
+    ax.set_xticklabels(labels)
+
+    if max_value > 5:
+        plt.yticks(np.arange(0, max_value + 1, np.floor(max_value / 3)))
+        plot_limit = max_value + 2
+    else:
+        plt.yticks(np.arange(0, max_value + 1, 1))
+        plot_limit = max_value + 1
+
+    ax.get_legend().remove()
+    ax.set_ylim([plot_limit, 0])
+
+    ax.xaxis.tick_top()
+
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label2.set_fontsize(30)
+
+    for tick in ax.yaxis.get_major_ticks():
+        tick.label.set_fontsize(30)
+
+    for label in ax.get_xticklabels():
+        if label.get_text() not in ['+25', '+20', '+15', '+10', '+5', '+1', '1', '5', '10', '15', '20',
+                                    '-5']:
+            label.set_visible(False)
+
+    new_width = 0.35
+    for patch in ax.patches:
+        current_width = patch.get_width()
+        diff = current_width - new_width
+
+        # we change the bar width
+        patch.set_width(new_width)
+
+        # we recenter the bar
+        patch.set_x(patch.get_x() + diff * .5)
+
+    plt.setp(ax.patches, linewidth=0)
+
+    plt.savefig(output_name, format='svg', dpi=300, transparent=True, bbox_inches='tight')
+    plt.close()
+
+
+def prepare_figures_per_mirna(output_folder):
+    if not os.path.exists(output_folder + '/plots'):
+        os.makedirs(output_folder + '/plots')
+    if not os.path.exists(output_folder + '/plots/miRNAs'):
+        os.makedirs(output_folder + '/plots/miRNAs')
+
+    df_temp = pd.read_csv(output_folder + '/all_mutations_with_weights.csv')
+    # df_temp = df_temp[df_temp['mutation_type'] == 'subst']
+
+    mirnas = list(set(df_temp['pre_name'].unique()))
+
+    for mirna in mirnas:
+
+        title = ''
+
+        title1 = mirna
+
+        df_temp2 = df_temp[df_temp['pre_name'] == mirna].copy()
+
+        type_of_miRNA = list(df_temp2['balance'].unique())[0]
+
+        mutations = df_temp2.shape[0]
+
+        create_plot_per_mirna(df_temp2, output_folder + '/plots/miRNAs/plot_miRNA_{}.svg'.format(mirna),
+                              mutations, types=type_of_miRNA, title1=title1, title=title)
+
+
 @click.command()
 @click.argument('output_folder')
 def main(output_folder):
     prepare_figure(output_folder)
+    prepare_figures_per_mirna(output_folder)
 
 
 if __name__ == "__main__":

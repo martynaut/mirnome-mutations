@@ -31,6 +31,10 @@ def make_unique_files(input_folder, output_folder, copy_input):
     files = [[x[0] + '/' + y for y in x[2]] for x in os.walk(input_folder)]
     flat_files = [file for sublist in files for file in sublist]
     gz_files = [file for file in flat_files if file.endswith('vcf.gz')]
+    
+    if not gz_files:
+        print("No vcf.gz files in the directory")
+        return 1
 
     dict_with_files = {}
     for gz_file in gz_files:
@@ -193,6 +197,17 @@ def make_unique_files(input_folder, output_folder, copy_input):
             shutil.copyfile(file, output_folder + '/' + file.split('/')[-1])
         else:
             shutil.move(file, output_folder + '/' + file.split('/')[-1])
+
+    click.echo("Cleaning temp folder")
+    for filename in os.listdir(output_folder + '/temp'):
+        file_path = os.path.join(output_folder + '/temp', filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete {}. Reason: {}'.format(file_path, e))
 
 
 @click.command()

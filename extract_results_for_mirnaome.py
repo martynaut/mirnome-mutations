@@ -38,34 +38,63 @@ def each_file_processing(filename, coordinates, dict_with_files):
             columns = line.replace('#', '').strip().lower().split('\t')
         else:
             position = line.split('\t')[:5]
-            if coordinates[(coordinates['chr'] == position[0]) &
+            if position[0].startswith('chr'):
+                chromosome = position[0]
+            else:
+                chromosome = 'chr' + position[0]
+            if coordinates[(coordinates['chr'] == chromosome) &
                            (coordinates['start_ref'] < int(position[1])) &
                            (coordinates['stop_ref'] > int(position[1]))].shape[0] > 0:
-
                 new_record = pd.DataFrame([line.replace('\n',
                                                         '').replace(';',
                                                                     ':').replace('"',
                                                                                  '').split('\t')],
                                           columns=columns)
+                new_record['chr'] = chromosome
                 new_record['indiv_name'] = dict_with_files[filename]['indiv_name']
                 new_record['indiv_id'] = dict_with_files[filename]['indiv_id']
                 new_record['sample_id_tumor_name'] = dict_with_files[filename]['sample_id_tumor_name']
                 new_record['sample_id_tumor_aliQ'] = dict_with_files[filename]['sample_id_tumor_aliQ']
                 new_record['sample_id_normal_name'] = dict_with_files[filename]['sample_id_normal_name']
                 new_record['sample_id_normal_aliQ'] = dict_with_files[filename]['sample_id_normal_aliQ']
-                (new_record['norm_ref_count'], new_record['norm_alt_count'],
-                    new_record['tumor_ref_count'], new_record['tumor_alt_count'],
-                    new_record['BQ_ref_tum'],
-                    new_record['BQ_alt_tum'],
-                    new_record['BQ_ref_norm'],
-                    new_record['BQ_alt_norm'],
-                    new_record['QSS_ref_tum'],
-                    new_record['QSS_alt_tum'],
-                    new_record['QSS_ref_nor'],
-                    new_record['QSS_alt_nor'],
-                    new_record['SSC']) = retract_counts(
-                        new_record[normal_name], new_record[tumor_name], new_record['format'],
-                        new_record['ref'], new_record['alt'])
+                try:
+                    (new_record['norm_ref_count'], new_record['norm_alt_count'],
+                        new_record['tumor_ref_count'], new_record['tumor_alt_count'],
+                        new_record['BQ_ref_tum'],
+                        new_record['BQ_alt_tum'],
+                        new_record['BQ_ref_norm'],
+                        new_record['BQ_alt_norm'],
+                        new_record['QSS_ref_tum'],
+                        new_record['QSS_alt_tum'],
+                        new_record['QSS_ref_nor'],
+                        new_record['QSS_alt_nor'],
+                        new_record['SSC']) = retract_counts(
+                            new_record[normal_name], new_record[tumor_name], new_record['format'],
+                            new_record['ref'], new_record['alt'])
+                except KeyError:
+                    (new_record['norm_ref_count'], new_record['norm_alt_count'],
+                     new_record['tumor_ref_count'], new_record['tumor_alt_count'],
+                     new_record['BQ_ref_tum'],
+                     new_record['BQ_alt_tum'],
+                     new_record['BQ_ref_norm'],
+                     new_record['BQ_alt_norm'],
+                     new_record['QSS_ref_tum'],
+                     new_record['QSS_alt_tum'],
+                     new_record['QSS_ref_nor'],
+                     new_record['QSS_alt_nor'],
+                     new_record['SSC']) = (np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan,
+                                           np.nan)
 
                 if np.isnan(float(new_record['SSC'].values[0])):
                     new_record['SSC'], new_record['SPV'] = retract_info(
@@ -78,7 +107,7 @@ def each_file_processing(filename, coordinates, dict_with_files):
     return dataframe_records
 
 
-def all_files_processing(input_folder, output_folder, coordinates_file):
+def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg=False):
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -163,10 +192,11 @@ def all_files_processing(input_folder, output_folder, coordinates_file):
                                              dict_with_files
                                              )
             results_df = pd.concat([results_df, dataframe])
-        try:
-            results_df = results_df[results_df['filter'].str.contains('PASS')]
-        except KeyError:
-            results_df = results_df
+        if pass_arg:
+            try:
+                results_df = results_df[results_df['filter'].str.contains('PASS')]
+            except KeyError:
+                results_df = results_df
         results_df.to_csv(output_folder + '/results_{}.csv'.format(file_type),
                           sep=',',
                           index=False)

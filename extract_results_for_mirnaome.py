@@ -206,9 +206,9 @@ def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg
 @click.argument('input_folder')
 @click.argument('output_folder')
 @click.argument('coordinates_file')
-def main(input_folder,  output_folder, coordinates_file,
+def main(input_folder,  output_folder, coordinates_file, pass_arg=False
          ):
-    all_files_processing(input_folder, output_folder, coordinates_file)
+    all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)
 
 
 if __name__ == "__main__":

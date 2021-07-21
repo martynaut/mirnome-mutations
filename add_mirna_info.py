@@ -64,12 +64,12 @@ def add_info(output_folder, localization_file, input_file=''):
 @click.command()
 @click.argument('output_folder')
 @click.argument('localization_file')
-@click.option('--input_file', '-f')
+@click.option('--csv_file', '-c')
 def main(output_folder,
          localization_file,
-         input_file=''
+         csv_file=''
          ):
-    add_info(output_folder, localization_file, input_file)
+    add_info(output_folder, localization_file, csv_file)
 
 
 if __name__ == "__main__":

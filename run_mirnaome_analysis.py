@@ -17,17 +17,27 @@ from add_weights import add_mutation_weights
 @click.option('--end_step', '-es')
 @click.option('--include_merger', '-m')
 @click.option('--include_filtering', '-f')
+@click.option('--csv_file', '-c')
+@click.option('--pass_arg', '-p')
 def main(input_folder,  output_folder, coordinates_file,
          localization_file, coordinates_with_seq,
          from_step='',
          end_step='',
          include_merger='',
-         include_filtering=''):
+         include_filtering='',
+         csv_file='',
+         pass_arg=''):
 
     if not from_step:
         from_step = 0
     if not end_step:
         end_step = 6
+    if csv_file:
+        from_step = 3
+    if pass_arg == 'True' or pass_arg == '1':
+        pass_arg = True
+    else:
+        pass_arg = False
     if not include_merger:
         include_merger = 0
     if not include_filtering:
@@ -39,7 +49,7 @@ def main(input_folder,  output_folder, coordinates_file,
 
     if from_step <= 1 <= end_step:
         click.echo("Step 1: Extract results for mirnaome")
-        all_files_processing(input_folder, output_folder, coordinates_file)
+        all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)
     else:
         click.echo("Skipping step 1")
 
@@ -56,7 +66,10 @@ def main(input_folder,  output_folder, coordinates_file,
         click.echo("Skipping step 2")
     if from_step <= 3 <= end_step:
         click.echo("Step 3: Add miRNA information")
-        add_info(output_folder, localization_file)
+        if csv_file:
+            add_info(output_folder, localization_file, csv_file)
+        else:
+            add_info(output_folder, localization_file)
     else:
         click.echo("Skipping step 3")
     if from_step <= 4 <= end_step:

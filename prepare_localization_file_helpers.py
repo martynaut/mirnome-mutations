@@ -4,6 +4,7 @@ from Bio import SeqIO
 import re
 from prepare_reads_file_helpers import parse_html
 from distinct_occure_helpers import find_arm, set_balance
+from add_weights_helpers import get_whole_sequence
 
 
 def add_mirgenedb(mirgenedb_file, output_folder):
@@ -723,5 +724,14 @@ def create_loc(output_folder):
     coordinates.sort_values(['chrom', 'start', 'stop'], inplace=True)
     coordinates['start'] = coordinates['start'].astype(int) - 1
 
-    coordinates.drop_duplicates(keep='first').to_csv(output_folder + '/coordinates.bed', sep='\t',
-                                                     index=False, header=False)
+    coordinates = coordinates.drop_duplicates(keep='first')
+    coordinates.to_csv(output_folder + '/coordinates.bed', sep='\t',
+                       index=False, header=False)
+
+    coordinates['whole_seq'] = coordinates.apply(
+        get_whole_sequence,
+        axis=1
+        )
+
+    coordinates.to_csv(output_folder + '/coordinates_withseq.bed', sep='\t',
+                       index=False, header=False)

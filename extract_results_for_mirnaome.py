@@ -50,7 +50,7 @@ def each_file_processing(filename, coordinates, dict_with_files):
                                                                     ':').replace('"',
                                                                                  '').split('\t')],
                                           columns=columns)
-                new_record['chr'] = chromosome
+                new_record['chrom'] = chromosome
                 new_record['indiv_name'] = dict_with_files[filename]['indiv_name']
                 new_record['indiv_id'] = dict_with_files[filename]['indiv_id']
                 new_record['sample_id_tumor_name'] = dict_with_files[filename]['sample_id_tumor_name']

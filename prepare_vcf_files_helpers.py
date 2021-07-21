@@ -97,6 +97,16 @@ def update_dict_with_file(filename, dict_of_files):
 
     regex_indiv_name = r'##INDIVIDUAL=<NAME=([A-Za-z0-9\-]+),'
     regex_indiv_id = r'##INDIVIDUAL=<NAME=[A-Za-z0-9\-]+,ID=([A-Za-z0-9\-]+)>'
+
+    regex_indiv_name2 = r'##tumor_sample=([A-Za-z0-9]+)+\n'
+    regex_indiv_id2 = r'##tumor_sample=[A-Za-z]+([0-9]+)[A-Za-z]+\n'
+
+    regex_indiv_name3 = r'##normal_sample=([A-Za-z0-9]+)+\n'
+    regex_indiv_id3 = r'##normal_sample=[A-Za-z]+([0-9]+)[A-Za-z]+\n'
+
+    regex_indiv_name4 = r'NAME=([A-Za-z0-9\-]+)'
+    regex_indiv_id4 = r'ID=([A-Za-z0-9\-]+)'
+
     regex_sample_tumor_name = r'##SAMPLE=<ID=TUMOR,NAME=([A-Za-z0-9\-]+),'
     regex_sample_tumor_aliq = r'##SAMPLE=<ID=TUMOR,NAME=[A-Za-z0-9\-]+,ALIQUOT_ID=([A-Za-z0-9\-]+),'
     regex_sample_normal_name = r'##SAMPLE=<ID=NORMAL,NAME=([A-Za-z0-9\-]+),'
@@ -115,6 +125,7 @@ def update_dict_with_file(filename, dict_of_files):
             line = line.decode('ascii')
         except AttributeError:
             pass
+
         if line.startswith('##INDIVIDUAL='):
             name_search = re.search(regex_indiv_name, line)
             if name_search:
@@ -147,6 +158,30 @@ def update_dict_with_file(filename, dict_of_files):
             source_search = re.search(regex_source, line)
             if source_search:
                 dict_entry['type_of_file'] = source_search.group(1)
+
+        # different sample id extractions
+        if line.startswith('##SAMPLE='):
+            sample_name_search = re.search(regex_indiv_name4, line)
+            if sample_name_search and dict_entry['indiv_name'] == '':
+                dict_entry['indiv_name'] = sample_name_search.group(1)
+            sample_id_search = re.search(regex_indiv_id4, line)
+            if sample_id_search and dict_entry['indiv_id'] == '':
+                dict_entry['indiv_id'] = sample_id_search.group(1)
+        if line.startswith('##normal_sample='):
+            sample_name_search = re.search(regex_indiv_name3, line)
+            if sample_name_search and dict_entry['indiv_name'] == '':
+                dict_entry['indiv_name'] = sample_name_search.group(1)
+            sample_id_search = re.search(regex_indiv_id3, line)
+            if sample_id_search and dict_entry['indiv_id'] == '':
+                dict_entry['indiv_id'] = sample_id_search.group(1)
+        if line.startswith('##tumor_sample='):
+            sample_name_search = re.search(regex_indiv_name2, line)
+            if sample_name_search and dict_entry['indiv_name'] == '':
+                dict_entry['indiv_name'] = sample_name_search.group(1)
+            sample_id_search = re.search(regex_indiv_id2, line)
+            if sample_id_search and dict_entry['indiv_id'] == '':
+                dict_entry['indiv_id'] = sample_id_search.group(1)
+
     f.close()
 
     dict_of_files[filename] = dict_entry

@@ -64,7 +64,7 @@ def add_info(output_folder, localization_file, input_file=''):
 @click.command()
 @click.argument('output_folder')
 @click.argument('localization_file')
-@click.option('--csv_file', '-c')
+@click.option('--csv_file', '-c', '/c')
 def main(output_folder,
          localization_file,
          csv_file=''

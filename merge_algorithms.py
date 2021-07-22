@@ -72,8 +72,8 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
 
 @click.command()
 @click.argument('output_folder')
-@click.option('--include_merger', '-m')
-@click.option('--include_filtering', '-f')
+@click.option('--include_merger', '-m', '/m')
+@click.option('--include_filtering', '-f', '/f')
 def main(output_folder,
          include_merger='',
          include_filtering=''

@@ -13,12 +13,12 @@ from add_weights import add_mutation_weights
 @click.argument('coordinates_file')
 @click.argument('localization_file')
 @click.argument('coordinates_with_seq')
-@click.option('--from_step', '-s')
-@click.option('--end_step', '-es')
-@click.option('--include_merger', '-m')
-@click.option('--include_filtering', '-f')
-@click.option('--csv_file', '-c')
-@click.option('--pass_arg', '-p')
+@click.option('--from_step', '-s', '/s')
+@click.option('--end_step', '-es', '/es')
+@click.option('--include_merger', '-m', '/m')
+@click.option('--include_filtering', '-f', '/f')
+@click.option('--csv_file', '-c', '/c')
+@click.option('--pass_arg', '-p', '/p')
 def main(input_folder,  output_folder, coordinates_file,
          localization_file, coordinates_with_seq,
          from_step='',

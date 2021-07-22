@@ -213,7 +213,7 @@ def make_unique_files(input_folder, output_folder, copy_input):
 @click.command()
 @click.argument('input_folder')
 @click.argument('output_folder')
-@click.option('--copy_input', '-c')
+@click.option('--copy_input', '-c', '/c')
 def main(input_folder,  output_folder, copy_input=''
          ):
     if not copy_input:

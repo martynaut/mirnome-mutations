@@ -21,8 +21,8 @@ def process_queue():
 @click.command()
 @click.argument('input_folder')
 @click.argument('output_folder')
-@click.option('--from_step', '-s')
-@click.option('--rerun', '-r')
+@click.option('--from_step', '-s', '/s')
+@click.option('--rerun', '-r', '/r')
 def main(input_folder,  output_folder,
          from_step='', rerun=''):
     if not from_step:

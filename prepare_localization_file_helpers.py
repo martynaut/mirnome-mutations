@@ -733,5 +733,5 @@ def create_loc(output_folder):
         axis=1
         )
 
-    coordinates.to_csv(output_folder + '/coordinates_withseq.bed', sep='\t',
+    coordinates.to_csv(output_folder + '/coordinates_with_seq.bed', sep='\t',
                        index=False, header=False)

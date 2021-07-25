@@ -4,7 +4,7 @@ from add_weights_helpers import rev_comp, change_in_motifs, iupac_dict, motifs, 
     motif_check
 
 
-def add_mutation_weights(coordinates_with_seq, output_folder):
+def add_mutation_weights(output_folder, coordinates_with_seq):
 
     df_all_mut = pd.read_csv(
         output_folder + '/all_mutations_with_localization.csv'
@@ -82,12 +82,12 @@ def add_mutation_weights(coordinates_with_seq, output_folder):
 
 
 @click.command()
-@click.argument('coordinates_with_seq')
 @click.argument('output_folder')
-def main(coordinates_with_seq,
-         output_folder
+@click.argument('coordinates_with_seq')
+def main(output_folder,
+         coordinates_with_seq
          ):
-    add_mutation_weights(coordinates_with_seq, output_folder)
+    add_mutation_weights(output_folder, coordinates_with_seq)
 
 
 if __name__ == "__main__":

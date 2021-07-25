@@ -74,7 +74,7 @@ def main(input_folder,  output_folder, coordinates_file,
         click.echo("Skipping step 3")
     if from_step <= 4 <= end_step:
         click.echo("Step 4: Add mutation weights")
-        add_mutation_weights(coordinates_with_seq, output_folder)
+        add_mutation_weights(output_folder, coordinates_with_seq)
     else:
         click.echo("Skipping step 3")
     if from_step <= 5 <= end_step:

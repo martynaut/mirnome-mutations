@@ -30,7 +30,7 @@ def add_mirgenedb(mirgenedb_file, output_folder):
 
 def merge_all(output_folder):
     confidence = pd.read_csv(output_folder + '/.confidence_file.csv')
-    localizations = pd.read_csv(output_folder + '/.localizations.csv')
+    localizations = pd.read_csv(output_folder + '/.localizations_hg38.csv')
     print(localizations.shape)
     localizations['pre_name'] = localizations['name'].str.split('_').str[0]
 
@@ -47,7 +47,7 @@ def merge_all(output_folder):
     print(output_file.shape)
     print("miRNA genome regions:")
     print(output_file.shape[0] / 9)
-    output_file.to_csv(output_folder + '/localizations.csv',
+    output_file.to_csv(output_folder + '/localizations_hg38.csv',
                        index=False)
 
 
@@ -712,7 +712,7 @@ def create_loc(output_folder):
                                    df_part_plus5])
     localizations_new.sort_values(['chrom', 'start', 'stop'], inplace=True)
     localizations_new.dropna(inplace=True)
-    localizations_new.to_csv(output_folder + '/.localizations.csv', sep=',',
+    localizations_new.to_csv(output_folder + '/.localizations_hg38.csv', sep=',',
                              index=False)
     coordinates = localizations_new.copy()
     coordinates = coordinates.groupby(['id', 'chrom', 'start_pre'], as_index=False).agg({
@@ -725,7 +725,7 @@ def create_loc(output_folder):
     coordinates['start'] = coordinates['start'].astype(int) - 1
 
     coordinates = coordinates.drop_duplicates(keep='first')
-    coordinates.to_csv(output_folder + '/coordinates.bed', sep='\t',
+    coordinates.to_csv(output_folder + '/coordinates_hg38.bed', sep='\t',
                        index=False, header=False)
 
     coordinates['whole_seq'] = coordinates.apply(
@@ -733,5 +733,5 @@ def create_loc(output_folder):
         axis=1
         )
 
-    coordinates.to_csv(output_folder + '/coordinates_with_seq.bed', sep='\t',
+    coordinates.to_csv(output_folder + '/coordinates_with_seq_hg38.bed', sep='\t',
                        index=False, header=False)

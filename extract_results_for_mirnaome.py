@@ -206,6 +206,7 @@ def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg
 @click.argument('input_folder')
 @click.argument('output_folder')
 @click.argument('coordinates_file')
+@click.option('--pass_arg', '-p', '/p')
 def main(input_folder,  output_folder, coordinates_file, pass_arg=False
          ):
     all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)

@@ -1,5 +1,5 @@
-python3 run_mirnaome_analysis.py /Users/username/Documents/mirnaome_input \
-/Users/username/Documents/mirnaome_output \
-/Users/username/Documents/mirnaome_run_files/coordinates.bed \
-/Users/username/Documents/mirnaome_run_files/localizations.csv \
- -s 1
+python3 run_mirnaome_analysis.py input_files/vcfs/set1 \
+output_files/set1_output \
+reference_files/coordinates_hg38.bed \
+reference_files/localizations_hg38.csv \
+reference_files/coordinates_with_seq_hg38.bed

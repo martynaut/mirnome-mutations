@@ -11,7 +11,7 @@ from matplotlib import lines
 
 plt.rcParams['svg.fonttype'] = 'none'
 
-image_path = 'input_files/primirna_background.tiff'
+image_path = 'reference_files/primirna_background.tiff'
 
 SMALL_SIZE = 18
 MEDIUM_SIZE = 20

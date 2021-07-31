@@ -1,6 +1,6 @@
 import pandas as pd
 import click
-from hgvs_helpers import var_c_p_prep, type_of_mutation, mut_lenght
+from hgvs_helpers import var_c_p_prep, type_of_mutation, mut_lenght, rev_comp
 
 
 def hgvs_nomenclature(output_folder):
@@ -45,6 +45,137 @@ def hgvs_nomenclature(output_folder):
     table['hgvs_c_p'] = table.apply(lambda x: var_c_p_prep(x), axis=1)
 
     table.to_csv(output_folder + '/all_mutations_with_hgvs.csv', sep=',', index=False)
+
+    # N. HGVS
+
+    table['shuffle'] = table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1
+
+    table.loc[table['orientation'] == '-', 'shuffle'] = table['stop_pre_build'].astype(int) - table['pos']. \
+        astype(int) + 1
+
+    table.loc[table['shuffle'] <= 0, 'shuffle'] = '1' + (table['shuffle'] - 1).astype(str)
+
+    table.loc[(table['pos'].astype(int) > table['stop_pre_build'].astype(int)) &
+              (table['orientation'] == '+'), 'shuffle'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['pos'].astype(int) - table['stop_pre_build'].astype(int)).astype(str)
+    table.loc[(table['pos'].astype(int) < table['start_pre_build'].astype(int)) &
+              (table['orientation'] == '-'), 'shuffle'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['start_pre_build'].astype(int) - table['pos'].astype(int)).astype(str)
+
+    table['hgvs'] = ''
+
+    table.loc[((table['mutation_type'] == 'subst') & (table['orientation'] == '+')), 'hgvs'] = \
+        'n.' + table['shuffle'].astype(str) + table['ref'] + '>' + table['alt']
+
+    table.loc[((table['mutation_type'] == 'subst') & (table['orientation'] == '-')), 'hgvs'] = \
+        'n.' + table['shuffle'].astype(str) + table['ref'].apply(lambda x: rev_comp(x)) + '>' + \
+        table['alt'].apply(lambda x: rev_comp(x))
+
+    table['shuffle_ins'] = (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '_' + \
+                           (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1 + 1).astype(str)
+
+    table.loc[table['orientation'] == '-', 'shuffle_ins'] = (table['stop_pre_build'].astype(int) - table['pos'].
+                                                             astype(int) + 1).astype(str) + '_' + \
+                                                            (table['stop_pre_build'].astype(int) - table['pos'].
+                                                             astype(int) + 1 + 1).astype(str)
+
+    table.loc[(table['pos'] <= table['start_pre_build']) & (table['orientation'] == '+'), 'shuffle_ins'] = \
+        '1' + (table['pos'].astype(int) - table['start_pre_build'].astype(int)).astype(str) + \
+        '_' + '1' + (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str)
+
+    table.loc[(table['pos'] <= table['start_pre_build']) & (table['orientation'] == '-'), 'shuffle_ins'] = \
+        '1' + (table['stop_pre_build'].astype(int) - table['pos'].astype(int)).astype(str) + \
+        '_' + '1' + (table['stop_pre_build'].astype(int) - table['pos'].astype(int) + 1).astype(str)
+
+    table.loc[(table['pos'].astype(int) > table['stop_pre_build']) &
+              (table['orientation'] == '+'), 'shuffle_ins'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['pos'].astype(int) - table['stop_pre_build'].astype(int)).astype(str) + '_' + \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['pos'].astype(int) - table['stop_pre_build'].astype(int) + 1).astype(str)
+    table.loc[(table['pos'].astype(int) < table['start_pre_build']) &
+              (table['orientation'] == '-'), 'shuffle_ins'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['start_pre_build'].astype(int) - table['pos'].astype(int)).astype(str) + '_' + \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['start_pre_build'].astype(int) - table['pos'].astype(int) + 1).astype(str)
+
+    table.loc[((table['mutation_type'] == 'ins') & (table['orientation'] == '+')), 'hgvs'] = \
+        'n.' + table['shuffle_ins'] + 'ins' + \
+        table['alt'].apply(lambda x: x[1:])
+
+    table.loc[((table['mutation_type'] == 'ins') & (table['orientation'] == '-')), 'hgvs'] = \
+        'n.' + table['shuffle_ins'] + 'ins' + \
+        table['alt'].apply(lambda x: rev_comp(x[:-1])[::-1])
+
+    # table['shuffle_del1'] = ''
+    # table['shuffle_del2'] = ''
+    # table['shuffle_del'] = ''
+
+    table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '+'), 'shuffle_del1'] = \
+        (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1 + 1)
+
+    table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '+'), 'shuffle_del2'] = \
+        (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1 + 1 +
+         table['alt'].apply(lambda x: len(x) - 1))
+
+    table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '-'), 'shuffle_del1'] = \
+        (table['stop_pre_build'].astype(int) - table['pos'].
+         astype(int) + 1 + 1)
+
+    table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '-'), 'shuffle_del2'] = \
+        (table['stop_pre_build'].astype(int) - table['pos'].
+         astype(int) + 1 + 1 +
+         table['alt'].apply(lambda x: len(x) - 1))
+
+    table.loc[(table['shuffle_del1'] <= 0) & (table['mutation_type'] == 'del'), 'shuffle_del'] = \
+        '1' + (table['shuffle_del1'] - 1).astype(str)
+
+    table.loc[(table['shuffle_del2'] <= 0) & (table['mutation_type'] == 'del'), 'shuffle_del'] = \
+        '1' + (table['shuffle_del2'] - 1).astype(str)
+
+    table.loc[((table['pos'].astype(int) + 1) > table['stop_pre_build'].astype(int)) &
+              (table['orientation'] == '+') & (table['mutation_type'] == 'del'), 'shuffle_del1'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+              table['pos'].astype(int) - table['stop_pre_build'].astype(int) + 1).astype(str)
+
+    table.loc[((table['pos'].astype(int) + table['alt'].apply(lambda x: len(x) - 1) + 1) > table['stop_pre_build'].
+               astype(int)) &
+              (table['orientation'] == '+') & (table['mutation_type'] == 'del'), 'shuffle_del2'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['pos'].astype(int) - table['stop_pre_build'].astype(int) + 1 + table['alt'].
+                apply(lambda x: len(x) - 1)).astype(str)
+
+    table.loc[((table['pos'].astype(int) + 1) < table['start_pre_build'].astype(int)) &
+              (table['orientation'] == '-') & (table['mutation_type'] == 'del'), 'shuffle_del1'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['start_pre_build'].astype(int) - table['pos'].astype(int) + 1).astype(str)
+
+    table.loc[((table['pos'].astype(int) + table['alt'].apply(lambda x: len(x) - 1) + 1) < table['start_pre_build'].
+               astype(int)) &
+              (table['orientation'] == '-') & (table['mutation_type'] == 'del'), 'shuffle_del2'] = \
+        (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
+                table['start_pre_build'].astype(int) - table['pos'].astype(int) + 1 + table['alt'].
+                apply(lambda x: len(x) - 1)).astype(str)
+
+    table.loc[(table['mutation_type'] == 'del') & (table['alt'].apply(lambda x: len(x)) == 2), 'shuffle_del'] = \
+        table['shuffle_del1'].astype(str)
+
+    table.loc[(table['mutation_type'] == 'del') & (table['alt'].apply(lambda x: len(x)) > 2), 'shuffle_del'] = \
+        table['shuffle_del1'].astype(str) + '_' + table['shuffle_del2'].astype(str)
+
+    table.loc[(table['mutation_type'] == 'del') &
+              (table['orientation'] == '+'), 'hgvs'] = \
+        table['shuffle_del'].astype(str) + 'del' + table['alt'].apply(lambda x: x[1:])
+
+    table.loc[(table['mutation_type'] == 'del') &
+              (table['orientation'] == '-'), 'hgvs'] = \
+        table['shuffle_del'].astype(str) + 'del' + table['alt'].apply(lambda x: rev_comp(x[:-1])[::-1])
+
+    table.drop(['shuffle', 'shuffle_ins', 'shuffle_del'], axis=1, inplace=True)
+    table.to_csv(output_folder + '/all_mutations_with_n_hgvs.csv', sep=',', index=False)
 
 
 @click.command()

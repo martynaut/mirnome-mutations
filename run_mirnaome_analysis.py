@@ -5,6 +5,7 @@ from distinct_occure import dist_occur
 from add_mirna_info import add_info
 from mutation_loc_figures import prepare_figure, prepare_figures_per_mirna
 from add_weights import add_mutation_weights
+from add_hgvs_nomenclature import hgvs_nomenclature
 
 
 @click.command()
@@ -75,6 +76,7 @@ def main(input_folder,  output_folder, coordinates_file,
     if from_step <= 4 <= end_step:
         click.echo("Step 4: Add mutation weights")
         add_mutation_weights(output_folder, coordinates_with_seq)
+        hgvs_nomenclature(output_folder)
     else:
         click.echo("Skipping step 3")
     if from_step <= 5 <= end_step:

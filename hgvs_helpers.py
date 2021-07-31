@@ -40,3 +40,19 @@ def mut_lenght (x):
     # print(x)
     if len(x) > 1:
         return 'delins'
+
+
+def rev_comp(letter):
+    nt_dict = {
+        'A': 'T',
+        'T': 'A',
+        'G': 'C',
+        'C': 'G',
+        'U': 'A'
+    }
+    if len(letter) == 1:
+        return nt_dict[letter]
+    else:
+        letters = letter.split(',')
+        letters = [nt_dict[x] for substring in letters for x in substring]
+        return ','.join(letters)

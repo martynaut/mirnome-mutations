@@ -10,7 +10,7 @@ pd.options.mode.chained_assignment = None
 
 def dist_occur(output_folder):
 
-    all_mutations = pd.read_csv(output_folder + '/all_mutations_with_weights.csv')
+    all_mutations = pd.read_csv(output_folder + '/all_mutations_with_n_hgvs.csv')
 
     df_complex = all_mutations.groupby(['chrom', 'pre_name', 'id', 'start_pre', 'seq_type', 'indiv_name']).agg({
         'pos': ['nunique', 'count']

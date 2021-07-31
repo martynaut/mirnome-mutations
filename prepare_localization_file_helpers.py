@@ -44,6 +44,7 @@ def merge_all(output_folder):
     print(output_file.shape)
     mirgenedb = pd.read_csv(output_folder + '/.mirgenedb.csv')
     output_file = output_file.join(mirgenedb.set_index('mirbase_id'), on='id', how='left')
+    output_file.drop('start_pre', axis=1, inplace=True)
     print(output_file.shape)
     print("miRNA genome regions:")
     print(output_file.shape[0] / 9)

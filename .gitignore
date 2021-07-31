@@ -1,8 +1,9 @@
 **.idea
 
 # Working/testing files
-/input_files/input_vcf
+/input_files
 /output_folder
+/output_files
 code_snippets.sh
 
 # Byte-compiled / optimized / DLL files

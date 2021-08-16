@@ -85,13 +85,13 @@ def if_complex(row, complex_df):
     if complex_df[(complex_df['chrom'] == row['chrom']) &
                   (complex_df['pre_name'] == row['pre_name']) &
                   (complex_df['id'] == row['id']) &
-                  (complex_df['start_pre'] == row['start_pre']) &
-                  (complex_df['seq_type'] == row['seq_type'])].shape[0] != 0:
+                  (complex_df['stop_pre_build'] == row['stop_pre_build']) &
+                  (complex_df['start_pre_build'] == row['start_pre_build'])].shape[0] != 0:
         values = complex_df[(complex_df['chrom'] == row['chrom']) &
                             (complex_df['pre_name'] == row['pre_name']) &
                             (complex_df['id'] == row['id']) &
-                            (complex_df['start_pre'] == row['start_pre']) &
-                            (complex_df['seq_type'] == row['seq_type'])]['complex'].unique()
+                            (complex_df['stop_pre_build'] == row['stop_pre_build']) &
+                            (complex_df['start_pre_build'] == row['start_pre_build'])]['complex'].unique()
         if 1 in values:
             return 1
         else:
@@ -118,7 +118,9 @@ def concat_alg(col):
 
 
 def type_of_mutation(row):
-    if len(row['ref']) > len(row['alt']):
+    if (len(row['ref']) > 1) and (len(row['alt']) > 1):
+        return 'indel'
+    elif len(row['ref']) > len(row['alt']):
         return 'del'
     elif len(row['ref']) == len(row['alt']):
         return 'subst'

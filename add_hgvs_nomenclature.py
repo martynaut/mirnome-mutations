@@ -42,7 +42,8 @@ def hgvs_nomenclature(output_folder):
 
     table = pd.concat([df_subst, df_ins, df_del_1, df_del_2, df_delins], sort=False)
 
-    table['hgvs_c_p'] = table.apply(lambda x: var_c_p_prep(x), axis=1)
+    table['hgvs_g'] = table.apply(lambda x: var_c_p_prep(x), axis=1)
+    table.drop(['to_hgvs_g'], axis=1, inplace=True)
 
     table.to_csv(output_folder + '/all_mutations_with_hgvs.csv', sep=',', index=False)
 
@@ -174,7 +175,10 @@ def hgvs_nomenclature(output_folder):
               (table['orientation'] == '-'), 'hgvs'] = \
         table['shuffle_del'].astype(str) + 'del' + table['alt'].apply(lambda x: rev_comp(x[:-1])[::-1])
 
-    table.drop(['shuffle', 'shuffle_ins', 'shuffle_del'], axis=1, inplace=True)
+    table.drop(['shuffle', 'shuffle_ins', 'shuffle_del',
+                'norm_ref_count', 'norm_alt_count', 'tumor_ref_count', 'tumor_alt_count',
+                'seq_type'],
+               axis=1, inplace=True)
     table.to_csv(output_folder + '/all_mutations_with_n_hgvs.csv', sep=',', index=False)
 
 

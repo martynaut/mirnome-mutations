@@ -46,15 +46,14 @@ def add_info(output_folder, localization_file, input_file=''):
     all_mutations = all_mutations_raw.join(localizations.set_index('chrom'), on='chrom', how='left')
     all_mutations = all_mutations[(all_mutations['pos'] >= all_mutations['start'])
                                   & (all_mutations['pos'] <= all_mutations['stop'])]
-    column = all_mutations.columns[-1]
-    double_check = all_mutations.groupby(['chrom', 'pos', 'indiv_name'])[[column]].count()
+    double_check = all_mutations.groupby(['chrom', 'pos', 'indiv_name'])[['start']].count()
     double_check.columns = ['no_of_loc']
     all_mutations = all_mutations.join(double_check, on=['chrom', 'pos', 'indiv_name'], how='left')
 
     all_mutations['seq_type'] = all_mutations['name'].apply(lambda x: seq_type(x))
     if all_mutations.shape[0] > 0:
         all_mutations['from_start'] = all_mutations.apply(lambda x: from_start(x, 'start', 'stop'), axis=1)
-        all_mutations['from end'] = all_mutations.apply(lambda x: from_end(x, 'stop', 'start'), axis=1)
+        all_mutations['from_end'] = all_mutations.apply(lambda x: from_end(x, 'stop', 'start'), axis=1)
     all_mutations.to_csv(output_folder + '/all_mutations_with_localization.csv',
                          sep=',',
                          index=False)

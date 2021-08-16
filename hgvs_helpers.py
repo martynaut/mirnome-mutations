@@ -12,6 +12,8 @@ def var_c_p_prep(row):
 
     if row['chrom'] == 'chrX':
         hgvs_g = 'NC_000023' + d['chr23'] + ':' + row['to_hgvs_g']
+    elif row['chrom'] == 'chrY':
+        hgvs_g = 'NC_000024' + d['chr24'] + ':' + row['to_hgvs_g']
     elif len(row['chrom'].replace('chr', '')) == 1:
         hgvs_g = 'NC_00000' + row['chrom'].replace('chr', '') + d[row['chrom']] + ':' + row['to_hgvs_g']
     else:

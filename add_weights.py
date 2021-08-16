@@ -12,12 +12,12 @@ def add_mutation_weights(output_folder, coordinates_with_seq):
 
     df_all_mut['cut_region'] = df_all_mut.apply(
         lambda x: 1 if
-        ((x['type'] == 'flanking-5' and x['from end'] == -1)
+        ((x['type'] == 'flanking-5' and x['from_end'] == -1)
             or (x['type'] == 'flanking-3' and x['from_start'] == 1)
             or (x['type'] == 'loop' and x['from_start'] == 1)
-            or (x['type'] == 'loop' and x['from end'] == -1)
+            or (x['type'] == 'loop' and x['from_end'] == -1)
             or (x['type'] == 'pre-seed' and x['from_start'] == 1)
-            or (x['type'] == 'post-seed' and x['from end'] == -1)
+            or (x['type'] == 'post-seed' and x['from_end'] == -1)
          ) else 0,
         axis=1
     )
@@ -75,9 +75,9 @@ def add_mutation_weights(output_folder, coordinates_with_seq):
         ),
         axis=1
     )
-
+    df_all_mut.drop([1, 2, 4, 'whole_seq'], axis=1, inplace=True)
     df_all_mut.to_csv(
-        output_folder + '/all_mutations_with_weights.csv'
+        output_folder + '/all_mutations_with_weights.csv', index=False, sep=','
     )
 
 

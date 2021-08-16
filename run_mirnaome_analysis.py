@@ -74,7 +74,7 @@ def main(input_folder,  output_folder, coordinates_file,
     else:
         click.echo("Skipping step 3")
     if from_step <= 4 <= end_step:
-        click.echo("Step 4: Add mutation weights")
+        click.echo("Step 4: Add mutation weights and HGVS nomenclature")
         add_mutation_weights(output_folder, coordinates_with_seq)
         hgvs_nomenclature(output_folder)
     else:

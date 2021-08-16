@@ -31,6 +31,9 @@ def add_mirgenedb(mirgenedb_file, output_folder):
 def merge_all(output_folder):
     confidence = pd.read_csv(output_folder + '/.confidence_file.csv')
     localizations = pd.read_csv(output_folder + '/.localizations_hg38.csv')
+    starts_coord = pd.read_csv(output_folder + '/.hsa_mirbase_coordinates.csv')
+    starts_coord.rename({'start': 'start_pre_build',
+                         'stop': 'stop_pre_build'}, axis='columns', inplace=True)
     print(localizations.shape)
     localizations['pre_name'] = localizations['name'].str.split('_').str[0]
 
@@ -38,13 +41,21 @@ def merge_all(output_folder):
                                                            'Strand', 'mirna_name']), on=['id', 'orientation',
                                                                                        'pre_name'], how='left')
     output_file.loc[output_file['confidence'].isnull(), 'confidence'] = 'Low'
+    output_file = output_file.join(starts_coord.drop(['type',
+                                                      '-/+',
+                                                      'Alias',
+                                                      'Name',
+                                                      'From'], axis=1, inplace=False).set_index(['ID', 'chr',
+                                                                                                 'start_pre_build']),
+                                   on=['id', 'chrom', 'start_pre']
+                                   )
     print(output_file.shape)
     reads = pd.read_csv(output_folder + '/.reads.csv')
     output_file = output_file.join(reads.set_index('From'), on='id', how='left')
     print(output_file.shape)
     mirgenedb = pd.read_csv(output_folder + '/.mirgenedb.csv')
     output_file = output_file.join(mirgenedb.set_index('mirbase_id'), on='id', how='left')
-    output_file.drop('start_pre', axis=1, inplace=True)
+    output_file.rename({'start_pre': 'start_pre_build'}, axis=1, inplace=True)
     print(output_file.shape)
     print("miRNA genome regions:")
     print(output_file.shape[0] / 9)
@@ -93,6 +104,7 @@ def add_confidence(confidence_file, confidence_score_file,
                                      names=['mirna_name', 'id', '1', '2', '3', '4', '5',
                                             '6', '7', '8', '9', '10',
                                             '11', '12', '13', '14', '15'])
+    # please adjust this line for organisms other than human
     df_confidence_file = df_confidence_file[df_confidence_file['mirna_name'].str.contains('hsa')]
     df_confidence_score_file = pd.read_csv(confidence_score_file, sep='\t',
                                            names=['id', 'score'])
@@ -122,8 +134,9 @@ def add_confidence(confidence_file, confidence_score_file,
     df_output = df_output.join(df_aliases_file.set_index('alias'), on='mirna_name')
 
     df_output = df_output[['mirna_name', 'start', 'stop', 'score', 'Strand', 'mirbase_id']]
-    df_output.rename({'start': 'start_pre_build',
-                      'stop': 'stop_pre_build'}, axis='columns', inplace=True)
+    # df_output.rename({'start': 'start_pre_build',
+    #                   'stop': 'stop_pre_build'}, axis='columns', inplace=True)
+    df_output.drop(['start', 'stop'], axis=1, inplace=True)
     df_output.drop_duplicates(inplace=True)
     df_output['confidence'] = df_output['score'].apply(lambda x: 'High' if x > 0 else 'Low')
     df_output.drop('score', axis=1, inplace=True)
@@ -155,7 +168,7 @@ def prepare_hsa_files(hsa_gff_mirbase_file, output_folder):
     data_chr['Alias'] = data_chr['desc'].str.extract(r'Alias\=([A-Za-z0-9]+)', expand=False)
     data_chr['Name'] = data_chr['desc'].str.extract(r'Name\=([A-Za-z0-9_\-]+)', expand=False)
     data_chr['From'] = data_chr['desc'].str.extract(r'Derives_from\=([A-Za-z0-9]+)', expand=False)
-
+    data_chr.drop_duplicates(keep="first", inplace=True)
     data_chr.drop(['desc', '.', '.2', '.3'], inplace=True, axis=1)
     data_chr.to_csv(output_folder + '/.hsa_mirbase_coordinates.csv', index=False)
 
@@ -713,9 +726,12 @@ def create_loc(output_folder):
                                    df_part_plus5])
     localizations_new.sort_values(['chrom', 'start', 'stop'], inplace=True)
     localizations_new.dropna(inplace=True)
+    localizations_new['failed'] = localizations_new.apply(lambda x: x['stop'] < x['start'], axis=1)
+
     localizations_new.to_csv(output_folder + '/.localizations_hg38.csv', sep=',',
                              index=False)
     coordinates = localizations_new.copy()
+    coordinates.drop(['failed'], axis=1, inplace=True)
     coordinates = coordinates.groupby(['id', 'chrom', 'start_pre'], as_index=False).agg({
         'start': min,
         'stop': max
@@ -726,6 +742,7 @@ def create_loc(output_folder):
     coordinates['start'] = coordinates['start'].astype(int) - 1
 
     coordinates = coordinates.drop_duplicates(keep='first')
+
     coordinates.to_csv(output_folder + '/coordinates_hg38.bed', sep='\t',
                        index=False, header=False)
 

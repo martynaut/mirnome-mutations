@@ -257,7 +257,7 @@ def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
 
 def prepare_data_5p(df_temp):
 
-    add_loop = df_temp[(df_temp['arm'] == 'loop') & ((df_temp['from_start'] >= 4) & (df_temp['from end'] <= -4))]
+    add_loop = df_temp[(df_temp['arm'] == 'loop') & ((df_temp['from_start'] >= 4) & (df_temp['from_end'] <= -4))]
 
     add_loop_value = add_loop.shape[0]
 
@@ -344,14 +344,14 @@ def prepare_data_3p(df_temp):
     try:
 
         dataframe_loop = df_temp[(df_temp['arm'] == 'loop') &
-                                 (df_temp['from end'] > -4)].groupby(['arm', 'type', 'from end'],
+                                 (df_temp['from_end'] > -4)].groupby(['arm', 'type', 'from_end'],
                                                                      as_index=False)[['pos']].count()[['arm', 'type',
-                                                                                                       'from end',
+                                                                                                       'from_end',
                                                                                                        'pos']]
-        dataframe_loop['from_start'] = dataframe_loop['from end'].apply(
+        dataframe_loop['from_start'] = dataframe_loop['from_end'].apply(
             lambda start: start + 4
         )
-        dataframe_loop.drop('from end', inplace=True, axis=1)
+        dataframe_loop.drop('from_end', inplace=True, axis=1)
     except KeyError:
 
         dataframe_loop = df_temp[(df_temp['arm'] == 'loop') &

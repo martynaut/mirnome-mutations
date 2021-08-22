@@ -118,7 +118,9 @@ def concat_alg(col):
 
 
 def type_of_mutation(row):
-    if (len(row['ref']) > 1) and (len(row['alt']) > 1):
+    if ',' in row['alt']:
+        return 'multimutation'
+    elif (len(row['ref']) > 1) and (len(row['alt']) > 1):
         return 'indel'
     elif len(row['ref']) > len(row['alt']):
         return 'del'

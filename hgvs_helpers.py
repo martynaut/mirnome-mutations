@@ -27,17 +27,6 @@ def var_c_p_prep(row):
     return str(var_g)
 
 
-def type_of_mutation(row):
-    if len(row['ref']) > len(row['alt']):
-        return 'del'
-    elif len(row['ref']) == len(row['alt']):
-        return 'subst'
-    elif ',' in row['alt']:
-        return 'subst'
-    else:
-        return 'ins'
-
-
 def mut_lenght (x):
     # print(x)
     if len(x) > 1:
@@ -54,7 +43,12 @@ def rev_comp(letter):
     }
     if len(letter) == 1:
         return nt_dict[letter]
+    elif ',' in letter:
+        words = letter.split(',')
+        new_words = []
+        for word in words:
+            new_words.append(''.join([nt_dict[x] for x in word]))
+        return ','.join(new_words)
     else:
-        letters = letter.split(',')
-        letters = [nt_dict[x] for substring in letters for x in substring]
-        return ','.join(letters)
+        letter = [nt_dict[x] for x in letter]
+        return ''.join(letter)

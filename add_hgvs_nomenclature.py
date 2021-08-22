@@ -1,6 +1,6 @@
 import pandas as pd
 import click
-from hgvs_helpers import var_c_p_prep, type_of_mutation, mut_lenght, rev_comp
+from hgvs_helpers import var_c_p_prep, mut_lenght, rev_comp
 
 
 def hgvs_nomenclature(output_folder):
@@ -11,11 +11,7 @@ def hgvs_nomenclature(output_folder):
     # create 4 new tables for subst, ins, del _1nt, i del_longer, creates new column "to_hgvs_g" with e.g
     # g.423274G>T or g.514_515delAT; at the end joins it to new table 'table'
 
-    table['mutation_type'] = table.apply(lambda x: type_of_mutation(x), axis=1)
-    table['delins'] = None
-    table['delins'] = table['alt'].apply(lambda x: mut_lenght(x))
-
-    df_subst = table[((table['mutation_type'] == 'subst') & (table['delins'] != 'delins'))].copy()
+    df_subst = table[table['mutation_type'] == 'subst'].copy()
     if df_subst.shape[0] >= 1:
         df_subst['to_hgvs_g'] = df_subst.apply(lambda x: 'g.' + str(x['pos']) + x['ref'] + '>' + x['alt'], axis=1)
 
@@ -34,19 +30,27 @@ def hgvs_nomenclature(output_folder):
             lambda x: 'g.' + str(x['pos'] + 1) + '_' + str(x['pos'] + len(x['ref']) - 1) + 'del' + str(x['ref'][1:]),
             axis=1)
 
-    df_delins = table[((table['mutation_type'] == 'subst') & (table['delins'] == 'delins'))].copy()
+    df_delins = table[table['mutation_type'] == 'indel'].copy()
     if df_delins.shape[0] >= 1:
         df_delins['to_hgvs_g'] = df_delins.apply(
             lambda x: 'g.' + str(x['pos']) + '_' + str(x['pos'] + len(x['ref']) - 1) + 'delins' + x['alt'], axis=1
         )
 
-    table = pd.concat([df_subst, df_ins, df_del_1, df_del_2, df_delins], sort=False)
+    df_multi = table[table['mutation_type'] == 'multimutation'].copy()
+    if df_multi.shape[0] >= 1:
+        df_multi['to_hgvs_g'] = ''
+
+    table = pd.concat([df_subst, df_ins, df_del_1, df_del_2, df_delins, df_multi], sort=False)
 
     table['hgvs_g'] = table.apply(lambda x: var_c_p_prep(x), axis=1)
     table.drop(['to_hgvs_g'], axis=1, inplace=True)
 
     table.to_csv(output_folder + '/all_mutations_with_hgvs.csv', sep=',', index=False)
 
+
+def hgvs_n_nomenclature(output_folder):
+
+    table = pd.read_csv(output_folder + '/all_mutations_with_hgvs.csv')
     # N. HGVS
 
     table['shuffle'] = table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1
@@ -74,13 +78,13 @@ def hgvs_nomenclature(output_folder):
         'n.' + table['shuffle'].astype(str) + table['ref'].apply(lambda x: rev_comp(x)) + '>' + \
         table['alt'].apply(lambda x: rev_comp(x))
 
-    table['shuffle_ins'] = (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '_' + \
-                           (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1 + 1).astype(str)
+    table['shuffle_ins'] = (table['pos'].astype(int) - table['start_pre_build'].astype(int)).astype(str) + '_' + \
+                           (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str)
 
     table.loc[table['orientation'] == '-', 'shuffle_ins'] = (table['stop_pre_build'].astype(int) - table['pos'].
-                                                             astype(int) + 1).astype(str) + '_' + \
+                                                             astype(int)).astype(str) + '_' + \
                                                             (table['stop_pre_build'].astype(int) - table['pos'].
-                                                             astype(int) + 1 + 1).astype(str)
+                                                             astype(int) + 1).astype(str)
 
     table.loc[(table['pos'] <= table['start_pre_build']) & (table['orientation'] == '+'), 'shuffle_ins'] = \
         '1' + (table['pos'].astype(int) - table['start_pre_build'].astype(int)).astype(str) + \
@@ -109,7 +113,7 @@ def hgvs_nomenclature(output_folder):
 
     table.loc[((table['mutation_type'] == 'ins') & (table['orientation'] == '-')), 'hgvs'] = \
         'n.' + table['shuffle_ins'] + 'ins' + \
-        table['alt'].apply(lambda x: rev_comp(x[:-1])[::-1])
+        table['alt'].apply(lambda x: rev_comp(x[1:])[::-1])
 
     # table['shuffle_del1'] = ''
     # table['shuffle_del2'] = ''
@@ -120,7 +124,7 @@ def hgvs_nomenclature(output_folder):
 
     table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '+'), 'shuffle_del2'] = \
         (table['pos'].astype(int) - table['start_pre_build'].astype(int) + 1 + 1 +
-         table['alt'].apply(lambda x: len(x) - 1))
+         table['ref'].apply(lambda x: len(x) - 1))
 
     table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '-'), 'shuffle_del1'] = \
         (table['stop_pre_build'].astype(int) - table['pos'].
@@ -129,7 +133,7 @@ def hgvs_nomenclature(output_folder):
     table.loc[(table['mutation_type'] == 'del') & (table['orientation'] == '-'), 'shuffle_del2'] = \
         (table['stop_pre_build'].astype(int) - table['pos'].
          astype(int) + 1 + 1 +
-         table['alt'].apply(lambda x: len(x) - 1))
+         table['ref'].apply(lambda x: len(x) - 1))
 
     table.loc[(table['shuffle_del1'] <= 0) & (table['mutation_type'] == 'del'), 'shuffle_del'] = \
         '1' + (table['shuffle_del1'] - 1).astype(str)
@@ -142,11 +146,11 @@ def hgvs_nomenclature(output_folder):
         (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
               table['pos'].astype(int) - table['stop_pre_build'].astype(int) + 1).astype(str)
 
-    table.loc[((table['pos'].astype(int) + table['alt'].apply(lambda x: len(x) - 1) + 1) > table['stop_pre_build'].
+    table.loc[((table['pos'].astype(int) + table['ref'].apply(lambda x: len(x) - 1) + 1) > table['stop_pre_build'].
                astype(int)) &
               (table['orientation'] == '+') & (table['mutation_type'] == 'del'), 'shuffle_del2'] = \
         (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
-                table['pos'].astype(int) - table['stop_pre_build'].astype(int) + 1 + table['alt'].
+                table['pos'].astype(int) - table['stop_pre_build'].astype(int) + 1 + table['ref'].
                 apply(lambda x: len(x) - 1)).astype(str)
 
     table.loc[((table['pos'].astype(int) + 1) < table['start_pre_build'].astype(int)) &
@@ -158,27 +162,40 @@ def hgvs_nomenclature(output_folder):
                astype(int)) &
               (table['orientation'] == '-') & (table['mutation_type'] == 'del'), 'shuffle_del2'] = \
         (table['stop_pre_build'].astype(int) - table['start_pre_build'].astype(int) + 1).astype(str) + '+' + (
-                table['start_pre_build'].astype(int) - table['pos'].astype(int) + 1 + table['alt'].
+                table['start_pre_build'].astype(int) - table['pos'].astype(int) + 1 + table['ref'].
                 apply(lambda x: len(x) - 1)).astype(str)
 
-    table.loc[(table['mutation_type'] == 'del') & (table['alt'].apply(lambda x: len(x)) == 2), 'shuffle_del'] = \
-        table['shuffle_del1'].astype(str)
+    table['shuffle_del1'].fillna(0, inplace=True)
+    table['shuffle_del2'].fillna(0, inplace=True)
 
-    table.loc[(table['mutation_type'] == 'del') & (table['alt'].apply(lambda x: len(x)) > 2), 'shuffle_del'] = \
-        table['shuffle_del1'].astype(str) + '_' + table['shuffle_del2'].astype(str)
+    table.loc[(table['mutation_type'] == 'del') & (table['ref'].apply(lambda x: len(x)) == 2), 'shuffle_del'] = \
+        table['shuffle_del1'].astype(int).astype(str)
+
+    table.loc[(table['mutation_type'] == 'del') & (table['ref'].apply(lambda x: len(x)) > 2), 'shuffle_del'] = \
+        table['shuffle_del1'].astype(int).astype(str) + '_' + table['shuffle_del2'].astype(int).astype(str)
 
     table.loc[(table['mutation_type'] == 'del') &
               (table['orientation'] == '+'), 'hgvs'] = \
-        table['shuffle_del'].astype(str) + 'del' + table['alt'].apply(lambda x: x[1:])
+        table['shuffle_del'].astype(int).astype(str) + 'del' + table['ref'].apply(lambda x: x[1:])
 
     table.loc[(table['mutation_type'] == 'del') &
               (table['orientation'] == '-'), 'hgvs'] = \
-        table['shuffle_del'].astype(str) + 'del' + table['alt'].apply(lambda x: rev_comp(x[:-1])[::-1])
+        table['shuffle_del'].astype(int).astype(str) + 'del' + table['ref'].apply(lambda x: rev_comp(x[:-1])[::-1])
 
-    table.drop(['shuffle', 'shuffle_ins', 'shuffle_del',
-                'norm_ref_count', 'norm_alt_count', 'tumor_ref_count', 'tumor_alt_count',
+    table.drop(['shuffle', 'shuffle_ins', 'shuffle_del', 'shuffle_del1', 'shuffle_del2',
                 'seq_type'],
                axis=1, inplace=True)
+    try:
+        table.drop(['norm_ref_count', 'norm_alt_count', 'tumor_ref_count', 'tumor_alt_count'],
+                   axis=1, inplace=True)
+    except KeyError:
+        pass
+    try:
+        table.drop(['start_pre'],
+                   axis=1, inplace=True)
+    except KeyError:
+        pass
+    table.sort_values(by=['chrom', 'pos'], axis=0, inplace=True)
     table.to_csv(output_folder + '/all_mutations_with_n_hgvs.csv', sep=',', index=False)
 
 
@@ -187,6 +204,7 @@ def hgvs_nomenclature(output_folder):
 def main(output_folder
          ):
     hgvs_nomenclature(output_folder)
+    hgvs_n_nomenclature(output_folder)
 
 
 if __name__ == "__main__":

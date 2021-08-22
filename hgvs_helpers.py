@@ -52,3 +52,11 @@ def rev_comp(letter):
     else:
         letter = [nt_dict[x] for x in letter]
         return ''.join(letter)
+
+
+def tryconvert(value):
+    try:
+        return str(int(value))
+    except:
+        return str(value)
+

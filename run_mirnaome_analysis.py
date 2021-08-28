@@ -50,7 +50,9 @@ def main(input_folder,  output_folder, coordinates_file,
 
     if from_step <= 1 <= end_step:
         click.echo("Step 1: Extract results for mirnaome")
-        all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)
+        output1 = all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)
+        if output1 == 1:
+            return 1
     else:
         click.echo("Skipping step 1")
 

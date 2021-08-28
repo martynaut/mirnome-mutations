@@ -5,6 +5,8 @@
 /output_folder
 /output_files
 code_snippets.sh
+liftover_postprocessing.py
+check_localization_file.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

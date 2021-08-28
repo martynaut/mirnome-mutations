@@ -728,10 +728,24 @@ def create_loc(output_folder):
     localizations_new.dropna(inplace=True)
     localizations_new['failed'] = localizations_new.apply(lambda x: x['stop'] < x['start'], axis=1)
 
+    to_drop = localizations_new[localizations_new['failed']][['chrom', 'id',
+                                                              'start_pre',
+                                                              'failed']]
+
+    localizations_new = localizations_new.join(to_drop.set_index(['chrom', 'id',
+                                                                  'start_pre']),
+                                               on=['chrom', 'id',
+                                                   'start_pre'],
+                                               rsuffix='_drop')
+
+    localizations_new = localizations_new[localizations_new['failed_drop'].isna()]
+
+    localizations_new.drop(['failed', 'failed_drop'], axis=1, inplace=True)
+
     localizations_new.to_csv(output_folder + '/.localizations_hg38.csv', sep=',',
                              index=False)
     coordinates = localizations_new.copy()
-    coordinates.drop(['failed'], axis=1, inplace=True)
+    # coordinates.drop(['failed'], axis=1, inplace=True)
     coordinates = coordinates.groupby(['id', 'chrom', 'start_pre'], as_index=False).agg({
         'start': min,
         'stop': max

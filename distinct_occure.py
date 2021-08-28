@@ -50,6 +50,8 @@ def dist_occur(output_folder):
              'no_of_loc': concat_ints
              }).reset_index()
 
+        df_by_mutation.columns = [' '.join(col).strip() for col in df_by_mutation.columns.values]
+
     else:
         df_by_mutation = all_mutations.groupby(['chrom', 'pre_name', 'id', 'stop_pre_build', 'start_pre_build', 'pos',
                                                 'ref', 'alt',
@@ -57,8 +59,6 @@ def dist_occur(output_folder):
             {'indiv_name': 'nunique',
              'no_of_loc': concat_ints
              }).reset_index()
-    
-    df_by_mutation.columns = [' '.join(col).strip() for col in df_by_mutation.columns.values]
 
     df_by_mutation.to_csv(output_folder + '/distinct_mutations.csv',
                           sep=',',

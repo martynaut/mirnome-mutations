@@ -50,7 +50,7 @@ def add_info(output_folder, localization_file, input_file=''):
     double_check.columns = ['no_of_loc']
     all_mutations = all_mutations.join(double_check, on=['chrom', 'pos', 'indiv_name'], how='left')
 
-    all_mutations['seq_type'] = all_mutations['name'].apply(lambda x: seq_type(x))
+    # all_mutations['seq_type'] = all_mutations['name'].apply(lambda x: seq_type(x))
     if all_mutations.shape[0] > 0:
         all_mutations['from_start'] = all_mutations.apply(lambda x: from_start(x, 'start', 'stop'), axis=1)
         all_mutations['from_end'] = all_mutations.apply(lambda x: from_end(x, 'stop', 'start'), axis=1)

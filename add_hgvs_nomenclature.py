@@ -259,8 +259,8 @@ def hgvs_n_nomenclature(output_folder):
         'n.' + table['shuffle_indel'].astype(str) + 'delins' + table['alt'].apply(lambda x: rev_comp(x)[::-1])
 
     table.drop(['shuffle', 'shuffle_ins', 'shuffle_del', 'shuffle_del1', 'shuffle_del2',
-                'shuffle_indel', 'shuffle_indel1', 'shuffle_indel2',
-                'seq_type'],
+                'shuffle_indel', 'shuffle_indel1', 'shuffle_indel2'],
+ #               'seq_type'],
                axis=1, inplace=True)
     try:
         table.drop(['norm_ref_count', 'norm_alt_count', 'tumor_ref_count', 'tumor_alt_count'],

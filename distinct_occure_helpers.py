@@ -16,32 +16,6 @@ def set_balance(row, ratio):
         return 'both'
 
 
-def find_in_mirna(row, df_loc):
-
-    if df_loc[
-              (df_loc['chrom'] == row['chrom']) &
-              (df_loc['start'] <= row['pos']) &
-              (df_loc['orientation'] == row['orient_loc']) &
-              (df_loc['stop'] >= row['pos'])].shape[0] != 0:
-
-        temp = df_loc[
-                         (df_loc['chrom'] == row['chrom']) &
-                         (df_loc['start'] <= row['pos']) &
-                         (df_loc['orientation'] == row['orient_loc']) &
-                         (df_loc['stop'] >= row['pos'])].values[0]
-        if row['orient_loc'] == '+':
-            start = row['pos'] - temp[2] + 1
-            stop = row['pos'] - temp[3] - 1
-        else:
-            start = -(row['pos'] - temp[3] - 1)
-            stop = -(row['pos'] - temp[2] + 1)
-        localiz = [start, stop]
-    else:
-        localiz = [np.nan,
-                   np.nan]
-    return localiz
-
-
 def find_arm(row):
     if row['-/+'] == '+':
         if row['start'] - row['start_pre'] < row['stop_pre'] - row['stop']:
@@ -67,18 +41,6 @@ def from_end(row, column_stop, column_start):
         return row['pos'] - row[column_stop] - 1
     else:
         return row[column_start] - row['pos'] - 1
-
-
-def find_localization(row, df_loc):
-    print(row)
-    localizations = df_loc[(df_loc['chrom'] == row['chrom']) &
-                         (df_loc['start'] <= row['pos']) &
-                         (df_loc['stop'] >= row['pos'])].values
-    print(localizations)
-    if len(localizations) > 1:
-        raise ValueError
-    else:
-        return localizations[0]
 
 
 def if_complex(row, complex_df):
@@ -130,12 +92,6 @@ def type_of_mutation(row):
         return 'subst'
     else:
         return 'ins'
-
-
-def take_from_coord(coordinates, column_name, row):
-    return coordinates[(coordinates['chr'] == row['chrom']) &
-                       (coordinates['start'] < int(row['pos'])) &
-                       (coordinates['stop'] > int(row['pos']))][column_name].values[0]
 
 
 def seq_type(value):

@@ -36,10 +36,3 @@ def validation_function(row):
         results_qss = True
 
     return results_count and results_ssc and results_bq and results_qss
-
-
-def add_coordinates(row, coordinates):
-    result = coordinates[(coordinates['chr'] == row['chrom']) &
-                         (coordinates['start_ref'] < row['pos']) &
-                         (coordinates['stop_ref'] > row['pos'])]['gene'].values[0]
-    return result

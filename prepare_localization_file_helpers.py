@@ -39,7 +39,7 @@ def merge_all(output_folder):
 
     output_file = localizations.join(confidence.set_index(['mirbase_id',
                                                            'Strand', 'mirna_name']), on=['id', 'orientation',
-                                                                                       'pre_name'], how='left')
+                                                                                         'pre_name'], how='left')
     output_file.loc[output_file['confidence'].isnull(), 'confidence'] = 'Low'
     output_file = output_file.join(starts_coord.drop(['type',
                                                       '-/+',

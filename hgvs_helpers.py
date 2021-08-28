@@ -27,12 +27,6 @@ def var_c_p_prep(row):
     return str(var_g)
 
 
-def mut_lenght (x):
-    # print(x)
-    if len(x) > 1:
-        return 'delins'
-
-
 def rev_comp(letter):
     nt_dict = {
         'A': 'T',
@@ -57,6 +51,5 @@ def rev_comp(letter):
 def tryconvert(value):
     try:
         return str(int(value))
-    except:
+    except ValueError:
         return str(value)
-

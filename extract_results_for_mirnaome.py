@@ -149,6 +149,9 @@ def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg
 
     counter = 0
     all_files = df_dict_with_files.shape[0]
+    if all_files == 0:
+        print('No files found in the input directory')
+        return 1
     for file_type in list(df_dict_with_files['type_of_file'].unique()):
 
         results_df = pd.DataFrame(columns=['chrom',

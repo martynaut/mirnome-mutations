@@ -12,9 +12,11 @@ def dist_occur(output_folder):
 
     all_mutations = pd.read_csv(output_folder + '/all_mutations_with_n_hgvs.csv')
 
-    df_complex = all_mutations.groupby(['chrom', 'pre_name', 'id', 'stop_pre_build', 'start_pre_build', 'indiv_name']).agg({
-        'pos': ['nunique', 'count']
-    }).reset_index()
+    df_complex = all_mutations.groupby(['chrom', 'pre_name', 'id',
+                                        'stop_pre_build', 'start_pre_build', 'indiv_name']).agg(
+        {
+            'pos': ['nunique', 'count']
+        }).reset_index()
     df_complex.columns = ['chrom', 'pre_name', 'id', 'stop_pre_build', 'start_pre_build', 'indiv_name',
                           'pos_nunique', 'pos_count']
     df_complex['complex'] = df_complex['pos_count'].apply(lambda x: 0 if x < 2 else 1)

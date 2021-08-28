@@ -246,10 +246,7 @@ def hgvs_n_nomenclature(output_folder):
                 table['start_pre_build'].astype(int) - table['pos'].astype(int) + 1 + table['ref'].
                 apply(lambda x: len(x) - 1)).astype(int).astype(str)
 
-    table.loc[(table['mutation_type'] == 'indel') & (table['ref'].apply(lambda x: len(x)) == 2), 'shuffle_indel'] = \
-        table['shuffle_indel1'].apply(lambda x: tryconvert(x))
-
-    table.loc[(table['mutation_type'] == 'indel') & (table['ref'].apply(lambda x: len(x)) > 2), 'shuffle_indel'] = \
+    table.loc[(table['mutation_type'] == 'indel'), 'shuffle_indel'] = \
         table['shuffle_indel1'].apply(lambda x: tryconvert(x)) + '_' \
         + table['shuffle_indel2'].apply(lambda x: tryconvert(x))
 

@@ -81,18 +81,18 @@ def main(input_folder,  output_folder, coordinates_file,
         hgvs_nomenclature(output_folder)
         hgvs_n_nomenclature(output_folder)
     else:
-        click.echo("Skipping step 3")
+        click.echo("Skipping step 4")
     if from_step <= 5 <= end_step:
         click.echo("Step 5: Make complex, distinct and occure files")
         dist_occur(output_folder)
     else:
-        click.echo("Skipping step 4")
+        click.echo("Skipping step 5")
     if from_step <= 6 <= end_step:
         click.echo("Step 6: All mutations visualizations")
         prepare_figure(output_folder)
         prepare_figures_per_mirna(output_folder)
     else:
-        click.echo("Skipping step 5")
+        click.echo("Skipping step 6")
 
     click.echo("Analysis finished")
 

@@ -30,17 +30,17 @@
 ##contig=<ID=chrY,length=57227415>
 ##INDIVIDUAL=<NAME=sample03, ID=sample030303>
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-chr1	1167859	.	C	C	.	.	.
-chr1	1167872	.	T	TT	.	.	.
-chr1	1167951	.	GC	G	.	.	.
-chr1	20633667	.	G	A	.	.	.
-chr1	20633686	.	A	T	.	.	.
-chr1	177029377	.	C	G	.	.	.
-chr1	209432167	.	C	T	.	.	.
-chr1	209432234	.	G	A	.	.	.
-chr10	3991182	.	C	T	.	.	.
-chr10	3991252	.	A	T	.	.	.
-chr10	6152282	.	T	G	.	.	.
-chr10	17845137	.	C	A	.	.	.
-chr5	129097705	.	TGCCTGGCTAGCTCCTCCACAAATGCG	T	.	.	.
-chr5	154685821	.	TTA	TC	.	.	.
+chr1	151545836	.	G	A	.	.	.
+chr1	171101766	.	C	T	.	.	.
+chr1	228397081	.	C	T	.	.	.
+chr11	64341909	.	A	C	.	.	.
+chr12	24212414	.	G	T	.	.	.
+chr12	24212466	.	C	A	.	.	.
+chr12	24212476	.	G	A	.	.	.
+chr17	48156491	.	G	A	.	.	.
+chr18	39622129	.	G	T	.	.	.
+chr19	804957	.	G	T	.	.	.
+chr20	62332521	.	C	A	.	.	.
+chr22	31621484	.	GGA	G	.	.	.
+chr3	112112795	.	G	T	.	.	.
+chr5	154685801	.	A	G	.	.	.

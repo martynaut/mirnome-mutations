@@ -1,7 +1,7 @@
 import click
 from extract_results_for_mirnaome import all_files_processing
 from merge_algorithms import filter_and_combine
-from distinct_occure import dist_occur
+from distinct_occur import dist_occur
 from add_mirna_info import add_info
 from mutation_loc_figures import prepare_figure, prepare_figures_per_mirna
 from add_weights import add_mutation_weights

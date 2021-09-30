@@ -4,7 +4,7 @@ import os
 import re
 import numpy as np
 from post_extraction_analysis import post_analyse
-from distinct_occure_helpers import concat_alg
+from distinct_occur_helpers import concat_alg
 
 
 def filter_and_combine(output_folder, include_merger, include_filtering):

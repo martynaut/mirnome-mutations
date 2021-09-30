@@ -2,7 +2,7 @@ import click
 import os
 import pandas as pd
 import warnings
-from distinct_occure_helpers import type_of_mutation, \
+from distinct_occur_helpers import type_of_mutation, \
     subst_type, seq_type, from_end, from_start
 
 warnings.filterwarnings('ignore')

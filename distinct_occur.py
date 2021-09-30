@@ -1,6 +1,6 @@
 import click
 import pandas as pd
-from distinct_occure_helpers import concat_ints, if_complex
+from distinct_occur_helpers import concat_ints, if_complex
 import warnings
 
 

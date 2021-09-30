@@ -3,7 +3,7 @@ import RNA
 from Bio import SeqIO
 import re
 from prepare_reads_file_helpers import parse_html
-from distinct_occure_helpers import find_arm, set_balance
+from distinct_occur_helpers import find_arm, set_balance
 from add_weights_helpers import get_whole_sequence
 
 

@@ -2,9 +2,10 @@ import pandas as pd
 import click
 from add_weights_helpers import rev_comp, change_in_motifs, iupac_dict, motifs, \
     motif_check
+from add_hgvs_nomenclature import hgvs_nomenclature, hgvs_n_nomenclature
 
 
-def add_mutation_weights(output_folder, coordinates_with_seq):
+def add_mutation_weights(output_folder, coordinates_with_seq, weight_filter=1):
 
     df_all_mut = pd.read_csv(
         output_folder + '/all_mutations_with_localization.csv'
@@ -80,14 +81,23 @@ def add_mutation_weights(output_folder, coordinates_with_seq):
         output_folder + '/all_mutations_with_weights.csv', index=False, sep=','
     )
 
+    hgvs_nomenclature(output_folder, weight_filter)
+    hgvs_n_nomenclature(output_folder)
+
 
 @click.command()
 @click.argument('output_folder')
 @click.argument('coordinates_with_seq')
+@click.option('--weight_filter', '-w', '/w')
 def main(output_folder,
          coordinates_with_seq
          ):
-    add_mutation_weights(output_folder, coordinates_with_seq)
+    if not weight_filter:
+        weight_filter = 1
+
+    weight_filter = int(weight_filter)
+
+    add_mutation_weights(output_folder, coordinates_with_seq, weight_filter)
 
 
 if __name__ == "__main__":

@@ -3,9 +3,11 @@ import click
 from hgvs_helpers import var_c_p_prep, rev_comp, tryconvert
 
 
-def hgvs_nomenclature(output_folder):
+def hgvs_nomenclature(output_folder, weight_filter):
 
     table = pd.read_csv(output_folder + '/all_mutations_with_weights.csv')
+
+    table = table[table['weight'] >= weight_filter]
 
     # create HGVS from a scratch
     # create 4 new tables for subst, ins, del _1nt, i del_longer, creates new column "to_hgvs_g" with e.g

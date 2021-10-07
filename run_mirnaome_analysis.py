@@ -5,7 +5,6 @@ from distinct_occur import dist_occur
 from add_mirna_info import add_info
 from mutation_loc_figures import prepare_figure, prepare_figures_per_mirna
 from add_weights import add_mutation_weights
-from add_hgvs_nomenclature import hgvs_nomenclature, hgvs_n_nomenclature
 
 
 @click.command()
@@ -20,6 +19,7 @@ from add_hgvs_nomenclature import hgvs_nomenclature, hgvs_n_nomenclature
 @click.option('--include_filtering', '-f', '/f')
 @click.option('--csv_file', '-c', '/c')
 @click.option('--pass_arg', '-p', '/p')
+@click.option('--weight_filter', '-w', '/w')
 def main(input_folder,  output_folder, coordinates_file,
          localization_file, coordinates_with_seq,
          from_step='',
@@ -27,7 +27,8 @@ def main(input_folder,  output_folder, coordinates_file,
          include_merger='',
          include_filtering='',
          csv_file='',
-         pass_arg=''):
+         pass_arg='',
+         weight_filter=''):
 
     if not from_step:
         from_step = 0
@@ -43,6 +44,10 @@ def main(input_folder,  output_folder, coordinates_file,
         include_merger = 0
     if not include_filtering:
         include_filtering = 0
+    if not weight_filter:
+        weight_filter = 1.0
+
+    weight_filter = float(weight_filter)
     from_step = int(from_step)
     end_step = int(end_step)
     include_merger = int(include_merger)
@@ -77,9 +82,7 @@ def main(input_folder,  output_folder, coordinates_file,
         click.echo("Skipping step 3")
     if from_step <= 4 <= end_step:
         click.echo("Step 4: Add mutation weights and HGVS nomenclature")
-        add_mutation_weights(output_folder, coordinates_with_seq)
-        hgvs_nomenclature(output_folder)
-        hgvs_n_nomenclature(output_folder)
+        add_mutation_weights(output_folder, coordinates_with_seq, weight_filter)
     else:
         click.echo("Skipping step 4")
     if from_step <= 5 <= end_step:

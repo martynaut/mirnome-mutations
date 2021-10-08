@@ -1,0 +1,9 @@
+version: "1.0.0"
+services:
+  app:
+    build: .
+    image: mirmut
+    volumes:
+      - ./output_folder:/home/app_user/output_folder
+    stdin_open: true
+    tty: true

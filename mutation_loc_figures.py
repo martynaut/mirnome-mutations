@@ -1,13 +1,13 @@
+import os
 import pandas as pd
 import matplotlib
 import click
-matplotlib.use('TkAgg')
-import os
+from matplotlib import rc
+from matplotlib import lines
+# matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib import rc
 import numpy as np
-from matplotlib import lines
 
 plt.rcParams['svg.fonttype'] = 'none'
 

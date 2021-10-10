@@ -6,19 +6,19 @@ ascription of mutation according to HGVS nomenclature, as well as miRNA gene cha
 and miRNA arm balance. The pipeline includes creating a tabular and graphical summary of mutations.
 
 Primarily, the scripts were used to analyse mutations in cancer patients using somatic mutation data from TCGA.
-The scripts may be reused for other data sources, for details see: [ref TBD]. 
+The scripts may be reused for other data sources. 
 
 For conditions to reuse of these scripts please refer to `LICENSE` file.
 
 ## Running the pipeline
 
-All needed Python libraries are gathered in `requirements.txt` (The scripts were tested with Python 3.8).
+All needed Python libraries are gathered in `requirements.txt` (The scripts were tested with Python 3.8 and Python 3.7 on Ubuntu and MacOS).
 
 ### How to use it
 
-Details on how to use the script can be found in [ref TBD]
+Details on how to use the script can be found in [ref TBD] and on GitHub wiki pages for this repository.
 
-Example run on samplary input files is prepared in `run_test.sh` bash script.
+Example run on sample input files is prepared in `run_test.sh` bash script.
 
 ## Authors
 

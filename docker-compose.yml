@@ -1,8 +1,8 @@
-version: "1.0.0"
+version: "3.7"
 services:
   app:
     build: .
-    image: mirmut
+    image: martynaut/mirmut:buildx-latest
     volumes:
       - ./output_folder:/home/app_user/output_folder
     stdin_open: true

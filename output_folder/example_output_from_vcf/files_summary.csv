@@ -1,4 +1,4 @@
 filename,indiv_name,indiv_id,sample_id_tumor_name,sample_id_tumor_aliQ,sample_id_normal_name,sample_id_normal_aliQ,type_of_file
 input_files/input_vcf/example_vcf_set/sample01.vcf,sample01,,,,,,Test
-input_files/input_vcf/example_vcf_set/sample02.vcf,sample02,,,,,,Test
 input_files/input_vcf/example_vcf_set/sample03.vcf,sample03,,,,,,Test
+input_files/input_vcf/example_vcf_set/sample02.vcf,sample02,,,,,,Test

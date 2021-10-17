@@ -8,10 +8,12 @@ from matplotlib import lines
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import gc
 
 plt.rcParams['svg.fonttype'] = 'none'
 
 image_path = 'reference_files/primirna_background.tiff'
+im = plt.imread(image_path)
 
 SMALL_SIZE = 18
 MEDIUM_SIZE = 20
@@ -52,7 +54,6 @@ def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
     ax = fig.add_axes([0, 0, 1, 1])
 
     ax.axis('off')
-    im = plt.imread(image_path)
     plt.imshow(im)
     plt.xticks([])
     plt.yticks([])
@@ -252,7 +253,11 @@ def create_plot(data_df, output_name, mutations=0, genes=0, mirna_type='both'):
     plt.setp(ax.patches, linewidth=0)
 
     plt.savefig(output_name, format='svg', dpi=300, transparent=True, bbox_inches='tight')
-    plt.close()
+    plt.cla()
+    plt.clf()
+    plt.close("all")
+    plt.close(fig)
+    gc.collect()
 
 
 def prepare_data_5p(df_temp):
@@ -431,7 +436,7 @@ def prepare_figure(output_folder):
     if not os.path.exists(output_folder + '/plots'):
         os.makedirs(output_folder + '/plots')
 
-    df_temp = pd.read_csv(output_folder + '/all_mutations_with_weights.csv')
+    df_temp = pd.read_csv(output_folder + '/all_mutations_with_n_hgvs.csv')
     # df_temp = df_temp[df_temp['mutation_type'] == 'subst']
 
     mutations = df_temp.shape[0]
@@ -496,7 +501,6 @@ def create_plot_per_mirna(data_df, output_name, mutations=0, types='both', title
     ax = fig.add_axes([0, 0, 1, 1])
 
     ax.axis('off')
-    im = plt.imread(image_path)
     plt.imshow(im)
     plt.xticks([])
     plt.yticks([])
@@ -700,7 +704,11 @@ def create_plot_per_mirna(data_df, output_name, mutations=0, types='both', title
     plt.setp(ax.patches, linewidth=0)
 
     plt.savefig(output_name, format='svg', dpi=300, transparent=True, bbox_inches='tight')
-    plt.close()
+    plt.cla()
+    plt.clf()
+    plt.close("all")
+    plt.close(fig)
+    gc.collect()
 
 
 def prepare_figures_per_mirna(output_folder):
@@ -709,7 +717,7 @@ def prepare_figures_per_mirna(output_folder):
     if not os.path.exists(output_folder + '/plots/miRNAs'):
         os.makedirs(output_folder + '/plots/miRNAs')
 
-    df_temp = pd.read_csv(output_folder + '/all_mutations_with_weights.csv')
+    df_temp = pd.read_csv(output_folder + '/all_mutations_with_n_hgvs.csv')
     # df_temp = df_temp[df_temp['mutation_type'] == 'subst']
 
     mirnas = list(set(df_temp['pre_name'].unique()))
@@ -728,6 +736,9 @@ def prepare_figures_per_mirna(output_folder):
 
         create_plot_per_mirna(df_temp2, output_folder + '/plots/miRNAs/plot_miRNA_{}.svg'.format(mirna),
                               mutations, types=type_of_miRNA, title1=title1, title=title)
+
+        del df_temp2
+        gc.collect()
 
 
 @click.command()

@@ -10,13 +10,9 @@ The scripts may be reused for other data sources.
 
 For conditions to reuse of these scripts please refer to `LICENSE` file.
 
-## Running the pipeline
+## Using miRMut
 
-All needed Python libraries are gathered in `requirements.txt` (The scripts were tested with Python 3.8 and Python 3.7 on Ubuntu and MacOS).
-
-### How to use it
-
-Details on how to use the script can be found in [ref TBD] and on GitHub wiki pages for this repository.
+Details on how to prepare environment and use the script can be found on [GitHub wiki](https://github.com/martynaut/mirnome-mutations/wiki) pages for this repository.
 
 Example run on sample input files is prepared in `run_test.sh` bash script.
 

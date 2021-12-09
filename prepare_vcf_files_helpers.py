@@ -2,6 +2,15 @@ import re
 import gzip
 
 
+def is_valid_regex(regex_from_user: str) -> bool:
+    try:
+        re.compile(regex_from_user)
+        is_valid = True
+    except re.error:
+        is_valid = False
+    return is_valid
+
+
 def change_info(col, file_type):
     result = list(col.values)[0]
     try:
@@ -84,7 +93,7 @@ def change_format(col, file_type, column_name):
     return ':'.join(first)
 
 
-def update_dict_with_file(filename, dict_of_files):
+def update_dict_with_file(filename, dict_of_files, name_regex):
     dict_entry = {
         'indiv_name': '',
         'indiv_id': '',
@@ -183,6 +192,17 @@ def update_dict_with_file(filename, dict_of_files):
                 dict_entry['indiv_id'] = sample_id_search.group(1)
 
     f.close()
+
+    if name_regex:
+        if is_valid_regex(name_regex):
+            name_regex_checked = re.compile(name_regex)
+            print("\nRegex compiled as '{}' with type {}.".format(repr(name_regex_checked), type(name_regex_checked)))
+            file_name_search = re.search(name_regex_checked, filename)
+            dict_entry['indiv_id'] = file_name_search.group(1)
+            dict_entry['indiv_name'] = file_name_search.group(1)
+
+        else:
+            print('\nThe regex was not valid, so no matches.')
 
     dict_of_files[filename] = dict_entry
     return dict_of_files

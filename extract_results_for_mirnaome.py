@@ -107,7 +107,7 @@ def each_file_processing(filename, coordinates, dict_with_files):
     return dataframe_records
 
 
-def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg=False):
+def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg=False, name_regex=''):
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -140,7 +140,7 @@ def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg
     # files summary
     dict_with_files = {}
     for gz_file in vcf_files:
-        dict_with_files = update_dict_with_file(gz_file, dict_with_files)
+        dict_with_files = update_dict_with_file(gz_file, dict_with_files, name_regex)
 
     df_dict_with_files = pd.DataFrame.from_dict(dict_with_files, orient='index')
 
@@ -209,10 +209,11 @@ def all_files_processing(input_folder, output_folder, coordinates_file, pass_arg
 @click.argument('input_folder')
 @click.argument('output_folder')
 @click.argument('coordinates_file')
-@click.option('--pass_arg', '-p', '/p')
-def main(input_folder,  output_folder, coordinates_file, pass_arg=False
+@click.option('--pass_arg', '-p')
+@click.option('--name_regex', '-g')
+def main(input_folder,  output_folder, coordinates_file, pass_arg=False, name_regex=''
          ):
-    all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)
+    all_files_processing(input_folder, output_folder, coordinates_file, pass_arg, name_regex)
 
 
 if __name__ == "__main__":

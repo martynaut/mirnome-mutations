@@ -20,6 +20,7 @@ from add_weights import add_mutation_weights
 @click.option('--csv_file', '-c')
 @click.option('--pass_arg', '-p')
 @click.option('--weight_filter', '-w')
+@click.option('--name_regex', '-g')
 def main(input_folder,  output_folder, coordinates_file,
          localization_file, coordinates_with_seq,
          from_step='',
@@ -28,7 +29,8 @@ def main(input_folder,  output_folder, coordinates_file,
          include_filtering='',
          csv_file='',
          pass_arg='',
-         weight_filter=''):
+         weight_filter='',
+         name_regex=''):
 
     if not from_step:
         from_step = 0
@@ -55,7 +57,7 @@ def main(input_folder,  output_folder, coordinates_file,
 
     if from_step <= 1 <= end_step:
         click.echo("Step 1: Extract results for mirnaome")
-        output1 = all_files_processing(input_folder, output_folder, coordinates_file, pass_arg)
+        output1 = all_files_processing(input_folder, output_folder, coordinates_file, pass_arg, name_regex)
         if output1 == 1:
             return 1
     else:

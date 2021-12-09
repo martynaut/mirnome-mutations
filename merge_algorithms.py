@@ -52,7 +52,10 @@ def filter_and_combine(output_folder, include_merger, include_filtering):
     else:
         results_df = pd.read_csv(to_merge[0])
         alg = re.search('results_([a-zA-Z0-9]+)', to_merge[0])
-        results_df['alg'] = alg.group(1)
+        try:
+            results_df['alg'] = alg.group(1)
+        except AttributeError:
+            results_df['alg'] = 'unknown'
 
     columns = ['chrom', 'pos', 'ref', 'alt', 'indiv_name', 'norm_ref_count', 'norm_alt_count',
                'tumor_ref_count', 'tumor_alt_count', 'alg']
